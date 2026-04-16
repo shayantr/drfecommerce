@@ -44,7 +44,7 @@ class UserAddress(models.Model):
     class Meta:
         db_table = 'user_address'
 
-class order(models.Model):
+class Order(models.Model):
     STATUS_CHOICES=(
     ('cancelled', 'Cancelled'),
     ('pending', 'Pending'),
