@@ -1,0 +1,16 @@
+from django.db import models
+
+from core.models.base_model import BaseModel
+
+
+class Cart(BaseModel):
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='cart_user')
+    class Meta:
+        db_table = 'cart'
+
+class CartItem(BaseModel):
+    cart = models.ForeignKey('Cart', on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='items')
+    quantity = models.IntegerField()
+    class Meta:
+        db_table = 'cart_item'
