@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 
-from core.models import User, Cart, ProductImage
+from core.models import User, ProductImage
 
 
 # Register your models here.
@@ -14,7 +14,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('phone', 'email', 'password')}),
         (
             _('Permissions'),
-            {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+            {'fields': ('is_staff', 'is_active','auth_providers' ,'is_superuser', 'groups', 'user_permissions')}),
 
     (
         _('Important dates'), {'fields': ('last_login', 'date_joined')}

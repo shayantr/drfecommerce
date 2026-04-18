@@ -18,7 +18,7 @@ class StockAvailability(models.IntegerChoices):
     NO = 2, 'No'
 
 class AuthProviders(models.IntegerChoices):
-    USER = 1, 'User'
+    CUSTOMER = 1, 'Customer'
     ADMIN = 2, 'Admin'
     ACCOUNTANT = 3, 'Accountant'
 

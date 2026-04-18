@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_spectacular',
+    'rest_framework_simplejwt',
     'core',
+    'user',
     'storages',
 ]
 
@@ -114,7 +116,7 @@ USE_TZ = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

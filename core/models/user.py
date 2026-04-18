@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser, BaseUserManager
 
 from core.models.base_model import BaseModel
+from core.models.choices import AuthProviders
 
 
 # Create your models here.
@@ -37,6 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     objects = UserManager()
     date_joined = models.DateTimeField(auto_now_add=True)
+    auth_providers = models.IntegerField(choices=AuthProviders.choices, default=AuthProviders.CUSTOMER)
 
     USERNAME_FIELD = 'phone'
 
