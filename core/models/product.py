@@ -1,8 +1,15 @@
+import os
+import uuid
+
 from django.db import models
 
 from core.models.base_model import BaseModel
 from core.models.choices import StockAvailability
 
+def image_path(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    filename = f'{uuid.uuid4()}{ext}'
+    return os.path.join('uploads', 'media', filename)
 
 class Product(BaseModel):
     title = models.CharField(max_length=256)
@@ -21,8 +28,8 @@ class Product(BaseModel):
 
 class ProductImage(BaseModel):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='images')
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(verbose_name='Image', upload_to='product_images')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images', blank=True, null=True)
+    image = models.ImageField(verbose_name='Image', upload_to=image_path)
     main_image = models.BooleanField(default=False)
 
     class Meta:
