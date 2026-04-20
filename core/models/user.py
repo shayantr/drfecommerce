@@ -2,10 +2,14 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser, BaseUserManager
 
 from core.models.base_model import BaseModel
-from core.models.choices import AuthProviders
 
 
 # Create your models here.
+class AuthProviders(models.IntegerChoices):
+    CUSTOMER = 1, 'Customer'
+    ADMIN = 2, 'Admin'
+    ACCOUNTANT = 3, 'Accountant'
+
 
 class UserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):

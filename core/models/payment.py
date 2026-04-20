@@ -1,8 +1,11 @@
 from django.db import models
 
 from core.models.base_model import BaseModel
-from core.models.choices import PaymentStatus
 
+class PaymentStatus(models.IntegerChoices):
+    PENDING = 1, 'Pending'
+    PAID = 2, 'Paid'
+    FAILED = 3, 'Failed'
 
 class Payment(BaseModel):
     order = models.ForeignKey('order', on_delete=models.CASCADE, related_name='payments')

@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from core.models.choices import AuthProviders
+from core.models.user import AuthProviders
 
 
 class IsAdminProvider(BasePermission):

@@ -1,8 +1,13 @@
 from django.db import models
 
 from core.models.base_model import BaseModel
-from core.models.choices import OrderStatus
 
+class OrderStatus(models.IntegerChoices):
+    CANCELLED = 1, 'Cancelled'
+    PENDING = 2, 'Pending'
+    RETURNED = 3, 'Returned'
+    COMPLETED = 4, 'Completed'
+    DELIVERED = 5, 'Delivered'
 
 class Order(BaseModel):
     class Meta:

@@ -4,7 +4,6 @@ import uuid
 from django.db import models
 
 from core.models.base_model import BaseModel
-from core.models.choices import StockAvailability
 
 def image_path(instance, filename):
     ext = os.path.splitext(filename)[1]
@@ -17,7 +16,7 @@ class Product(BaseModel):
     description = models.TextField()
     price = models.IntegerField()
     quantity = models.IntegerField(default=1)
-    stock_availability = models.IntegerField(choices=StockAvailability.choices, default=StockAvailability.YES)
+    stock_availability = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     sku = models.CharField(max_length=256)
