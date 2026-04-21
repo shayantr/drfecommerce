@@ -19,9 +19,13 @@ class AdminSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
-    def get_tokens(self, user):
+    def _get_tokens(self, user):
         refresh = RefreshToken.for_user(user)
         return {
             'access': str(refresh.access_token),
             'refresh': str(refresh)
         }
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        return self._get_tokens(user)
