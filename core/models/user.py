@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractB
 
 from core.models.base_model import BaseModel
 
-
-# Create your models here.
+# todo rename the choices
 class RoleStatus(models.IntegerChoices):
     CUSTOMER = 1, 'Customer'
     ADMIN = 2, 'Admin'
