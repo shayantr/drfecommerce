@@ -3,6 +3,7 @@ import uuid
 
 from django.db import models
 
+from app import settings
 from core.models.base_model import BaseModel
 
 def image_path(instance, filename):
@@ -14,6 +15,7 @@ class Product(BaseModel):
     class Meta:
         db_table = 'product'
 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=256)
     slug = models.SlugField(max_length=256, unique=True)
     description = models.TextField()

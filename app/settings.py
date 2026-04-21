@@ -145,5 +145,7 @@ AWS_S3_ENDPOINT_URL = "https://s3.ir-thr-at1.arvanstorage.ir"
 # AWS_QUERYSTRING_AUTH = False
 
 STATIC_URL = 'static/'
-MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
+MEDIA_URL = '/media/'
+
+# MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
 # STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/static/"
