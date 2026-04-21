@@ -9,9 +9,6 @@ class OrderStatus(models.IntegerChoices):
     COMPLETED = 4, 'Completed'
     DELIVERED = 5, 'Delivered'
 
-
-#  todo - name change UserOrder -> Order
-#  todo - format code before committing
 class UserOrder(BaseModel):
     class Meta:
         db_table = 'user_order'
@@ -22,9 +19,7 @@ class UserOrder(BaseModel):
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
 
 
-
-
-class OrderItem(BaseModel):
+class Order(BaseModel):
     class Meta:
         db_table = 'order_item'
 
@@ -32,6 +27,3 @@ class OrderItem(BaseModel):
     price = models.IntegerField()
     quantity = models.IntegerField()
     order = models.ForeignKey('userorder', on_delete=models.CASCADE)
-
-
-

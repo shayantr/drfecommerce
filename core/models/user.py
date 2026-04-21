@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractB
 from core.models.base_model import BaseModel
 
 # todo rename the choices
-class RoleStatus(models.IntegerChoices):
+class Roles(models.IntegerChoices):
     CUSTOMER = 1, 'Customer'
     ADMIN = 2, 'Admin'
     ACCOUNTANT = 3, 'Accountant'
@@ -41,7 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     objects = UserManager()
     date_joined = models.DateTimeField(auto_now_add=True)
-    role = models.IntegerField(choices=RoleStatus.choices, default=RoleStatus.CUSTOMER)
+    role = models.IntegerField(choices=Roles.choices, default=Roles.CUSTOMER)
 
     USERNAME_FIELD = 'phone'
 

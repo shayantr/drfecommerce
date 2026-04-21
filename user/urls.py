@@ -1,8 +1,9 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from auth.api.admin_login.views import AdminUserLoginAPIView
 from user import views
-from user.views import AdminUserLoginAPIView
+
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserListViewSet)

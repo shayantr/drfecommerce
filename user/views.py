@@ -12,7 +12,7 @@ from rest_framework import status
 
 from core.models import User
 from core.permissions import IsAdminProvider
-from user.serializers import UserSerializer, AdminSerializer
+from user.serializers import UserSerializer
 
 
 # Create your views here.
