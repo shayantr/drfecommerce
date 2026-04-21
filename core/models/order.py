@@ -9,9 +9,9 @@ class OrderStatus(models.IntegerChoices):
     COMPLETED = 4, 'Completed'
     DELIVERED = 5, 'Delivered'
 
-class Order(BaseModel):
+class UserOrder(BaseModel):
     class Meta:
-        db_table = 'order'
+        db_table = 'user_order'
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='orders')
     status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.PENDING)
@@ -23,13 +23,12 @@ class Order(BaseModel):
 
 class OrderItem(BaseModel):
     class Meta:
-        db_table = 'user_order'
+        db_table = 'order_item'
 
-    user = models.ForeignKey('user', on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey('product', on_delete=models.CASCADE, related_name='order_items')
     price = models.IntegerField()
     quantity = models.IntegerField()
-    order = models.ForeignKey('order', on_delete=models.CASCADE)
+    order = models.ForeignKey('userorder', on_delete=models.CASCADE)
 
 
 

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_simplejwt',
     'core',
+    'auth',
+    'product',
     'user',
     'storages',
 ]

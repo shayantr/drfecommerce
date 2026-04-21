@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from core.models.user import AuthProviders
+from core.models.user import RoleStatus
 
 
 class IsAdminProvider(BasePermission):
@@ -10,4 +10,4 @@ class IsAdminProvider(BasePermission):
         if not user or not user.is_authenticated:
             return False
 
-        return user.auth_providers == AuthProviders.ADMIN
+        return user.rol == RoleStatus.ADMIN

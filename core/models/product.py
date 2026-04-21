@@ -11,6 +11,9 @@ def image_path(instance, filename):
     return os.path.join('uploads', 'media', filename)
 
 class Product(BaseModel):
+    class Meta:
+        db_table = 'product'
+
     title = models.CharField(max_length=256)
     slug = models.SlugField(max_length=256, unique=True)
     description = models.TextField()
@@ -21,8 +24,7 @@ class Product(BaseModel):
     is_deleted = models.BooleanField(default=False)
     sku = models.CharField(max_length=256)
 
-    class Meta:
-        db_table = 'product'
+
 
 
 class ProductImage(BaseModel):

@@ -5,7 +5,7 @@ from core.models.base_model import BaseModel
 
 
 # Create your models here.
-class AuthProviders(models.IntegerChoices):
+class RoleStatus(models.IntegerChoices):
     CUSTOMER = 1, 'Customer'
     ADMIN = 2, 'Admin'
     ACCOUNTANT = 3, 'Accountant'
@@ -42,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     objects = UserManager()
     date_joined = models.DateTimeField(auto_now_add=True)
-    auth_providers = models.IntegerField(choices=AuthProviders.choices, default=AuthProviders.CUSTOMER)
+    role = models.IntegerField(choices=RoleStatus.choices, default=RoleStatus.CUSTOMER)
 
     USERNAME_FIELD = 'phone'
 
