@@ -9,6 +9,9 @@ class OrderStatus(models.IntegerChoices):
     COMPLETED = 4, 'Completed'
     DELIVERED = 5, 'Delivered'
 
+
+#  todo - name change UserOrder -> Order
+#  todo - format code before committing
 class UserOrder(BaseModel):
     class Meta:
         db_table = 'user_order'

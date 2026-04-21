@@ -3,6 +3,7 @@ from django.db import models
 from core.models.base_model import BaseModel
 
 
+#  todo - name change userCart -> Cart
 class UserCart(BaseModel):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='cart_user')
     class Meta:
