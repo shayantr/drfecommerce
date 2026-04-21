@@ -13,12 +13,11 @@ class AdminProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['title', 'slug', 'description', 'price', 'sku']
 
-    def _get_or_create_images(self, images, product):
-        auth_user = self.context['request'].user
-        return product
 
     def create(self, validated_data):
         product = Product.objects.create(**validated_data)
         product.user = self.context['request'].user
         product.save()
         return product
+
+

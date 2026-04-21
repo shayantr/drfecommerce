@@ -1,12 +1,20 @@
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAdminUser
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Product
 from product.api.admin_product.serializers import AdminProductSerializer
 
 
-class CreateProductApiView(CreateAPIView):
+class CreateProductApiView(ListCreateAPIView):
+    serializer_class = AdminProductSerializer
+    queryset = Product.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+
+
+class ProductApiModelViewSet(ModelViewSet):
     serializer_class = AdminProductSerializer
     queryset = Product.objects.all()
     authentication_classes = [JWTAuthentication]

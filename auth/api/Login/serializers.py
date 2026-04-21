@@ -10,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # )
 
 class AdminSerializer(serializers.Serializer):
-    phone = serializers.CharField(write_only=True, max_length=11, min_length=11, validators=[phone_validator])
+    phone = serializers.CharField(write_only=True, max_length=11, min_length=11)
     password = serializers.CharField(write_only=True)
     user = serializers.HiddenField(default=None)
     access = serializers.CharField(read_only=True)
