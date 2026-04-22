@@ -12,4 +12,4 @@ class Cart(BaseModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='items')
     quantity = models.IntegerField()
     class Meta:
-        db_table = 'cart_item'
+        db_table = 'cart'

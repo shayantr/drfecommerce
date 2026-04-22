@@ -2,6 +2,7 @@ import os
 import uuid
 
 from django.db import models
+from django.utils.text import slugify
 
 from app import settings
 from core.models.base_model import BaseModel
@@ -17,7 +18,7 @@ class Product(BaseModel):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True, blank=True)
     description = models.TextField()
     price = models.IntegerField()
     quantity = models.IntegerField(default=1)
@@ -25,6 +26,17 @@ class Product(BaseModel):
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     sku = models.CharField(max_length=256)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exists():
+                slug = f'{base_slug}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 
 

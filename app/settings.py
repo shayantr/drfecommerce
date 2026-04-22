@@ -118,6 +118,8 @@ USE_TZ = True
 
 JWT_AUTH = {
     # how long the original token is valid for
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=5),
+
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=2),
 
     # allow refreshing of tokens

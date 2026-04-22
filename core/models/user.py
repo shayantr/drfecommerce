@@ -16,6 +16,7 @@ class UserManager(BaseUserManager):
             raise ValueError('User must have phone number')
         user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
+        user.role = Roles.ADMIN
         user.save(using=self._db)
         return user
     def create_superuser(self, phone, password=None, **extra_fields):

@@ -1,6 +1,6 @@
 from django.db import models
-
 from core.models.base_model import BaseModel
+
 
 class OrderStatus(models.IntegerChoices):
     CANCELLED = 1, 'Cancelled'
@@ -8,6 +8,7 @@ class OrderStatus(models.IntegerChoices):
     RETURNED = 3, 'Returned'
     COMPLETED = 4, 'Completed'
     DELIVERED = 5, 'Delivered'
+
 
 class UserOrder(BaseModel):
     class Meta:
@@ -21,7 +22,7 @@ class UserOrder(BaseModel):
 
 class Order(BaseModel):
     class Meta:
-        db_table = 'order_item'
+        db_table = 'order'
 
     product = models.ForeignKey('product', on_delete=models.CASCADE, related_name='order_items')
     price = models.IntegerField()

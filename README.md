@@ -19,7 +19,6 @@ feature => feature/login
 - staging 
 - demo
 
-z
 bugfix/models -> develop -> accept 
 
 develop - (merge) -> master
