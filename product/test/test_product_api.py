@@ -105,3 +105,12 @@ class PrivateApiTest(TestCase):
         self.assertEqual(Product.objects.count(), 1)
         for key, val in payload.items():
             self.assertEqual(getattr(product, key), val)
+
+    def test_destroy_product(self):
+        """Test deleting a product."""
+        product = self._create_product()
+        res = self.client.delete(detail_url(product.slug))
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Product.objects.count(), 0)
+
+
