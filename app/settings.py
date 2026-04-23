@@ -116,7 +116,19 @@ USE_I18N = True
 
 USE_TZ = True
 
-JWT_AUTH = {
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "COMPONENT_SPLIT_REQUEST": True
+}
+
+SIMPLE_JWT = {
     # how long the original token is valid for
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=5),
 
@@ -128,17 +140,9 @@ JWT_AUTH = {
     # this is the maximum time AFTER the token was issued that
     # it can be refreshed.  exprired tokens can't be refreshed.
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-}
-
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": datetime.timedelta(days=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": datetime.timedelta(days=7),
 }
 
 # Static files (CSS, JavaScript, Images)

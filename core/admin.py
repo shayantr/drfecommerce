@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 
-from core.models import User, ProductImage, Product
+from core.models import User, ProductImage, Product, Order, UserOrder, Payment, UserAddress
 
 
 # Register your models here.
@@ -32,5 +32,10 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(UserAddress)
 admin.site.register(ProductImage)
 admin.site.register(Product)
+admin.site.register(Order)
+admin.site.register(UserOrder)
+admin.site.register(Payment)
+
