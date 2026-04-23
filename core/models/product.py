@@ -16,7 +16,7 @@ class Product(BaseModel):
     class Meta:
         db_table = 'product'
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=256)
     slug = models.SlugField(max_length=256, unique=True, blank=True)
     description = models.TextField()

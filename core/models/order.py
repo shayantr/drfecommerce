@@ -24,7 +24,8 @@ class Order(BaseModel):
     class Meta:
         db_table = 'order'
 
-    product = models.ForeignKey('product', on_delete=models.CASCADE, related_name='order_items')
-    price = models.IntegerField()
-    quantity = models.IntegerField()
-    order = models.ForeignKey('userorder', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='order_items', blank=True, null=True)
+    price = models.IntegerField(blank=True, null=True)
+    quantity = models.IntegerField(blank=True, null=True)
+    order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
+
