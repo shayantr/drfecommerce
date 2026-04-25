@@ -1,15 +1,41 @@
-from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication
+from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Order, UserOrder
-from order.api.admin.serializers import UserOrderSerializer
+from core.models import Order, UserOrder, Payment
+from order.api.admin.serializers import AdminUserOrderSerializer, AdminPaymentSerializer, OrderDetailSerializer
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     queryset = UserOrder.objects.all()
-    serializer_class = UserOrderSerializer
+    serializer_class = AdminUserOrderSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    def get_queryset(self):
+        return self.queryset.all().prefetch_related('address')
+
+class OrderDetailViewSet(mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         GenericViewSet):
+    queryset = UserOrder.objects.all()
+    serializer_class = OrderDetailSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        return self.queryset.all().select_related('address').prefetch_related('orders')
+
+
+
+class PaymentViewSet(mixins.ListModelMixin,
+                     mixins.UpdateModelMixin,
+                     GenericViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = AdminPaymentSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
