@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from product.api.admin_product import ProductApiViewSet, CreateImageApiView
+from product.api.admin import ProductApiViewSet, CreateImageApiView
 
 app_name = 'product'
 router = DefaultRouter()

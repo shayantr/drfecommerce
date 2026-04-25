@@ -1,4 +1,3 @@
-from attr.validators import max_len
 from django.core import validators
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -12,7 +11,6 @@ class ImageProductSerializer(serializers.ModelSerializer):
         image = serializers.ImageField(required=True, allow_null=False, validators=[validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'], message='file supported only jpg, jpeg and png')])
         model = ProductImage
         fields = ['image', 'main_image']
-        # extra_kwargs = {'id': {'read_only': True}}
 
     def validate_image(self, value):
         if value.size > 1024000:
@@ -21,7 +19,8 @@ class ImageProductSerializer(serializers.ModelSerializer):
 
 
 class AdminProductSerializer(serializers.ModelSerializer):
-    images = serializers.PrimaryKeyRelatedField(queryset=ProductImage.objects.all(), write_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    images = serializers.PrimaryKeyRelatedField(queryset=ProductImage.objects.all(), write_only=True, required=False)
     images_detail = serializers.PrimaryKeyRelatedField(many=True, source="images", read_only=True)
     title = serializers.CharField(trim_whitespace=True,
                                   validators=[validators.MinLengthValidator(1, "at least 1 character required!"),
@@ -33,13 +32,13 @@ class AdminProductSerializer(serializers.ModelSerializer):
     price = serializers.IntegerField()
     class Meta:
         model = Product
-        fields = ['id', 'title', 'slug', 'description', 'price', 'sku', "images", "images_detail"]
+        fields = ['id','user', 'title', 'slug', 'description', 'price', 'sku', "images", "images_detail"]
         extra_kwargs = {'id': {'read_only': True}}
 
     def create(self, validated_data):
-        img = validated_data.pop('images')
+        img = validated_data.pop('images', None)
         product = Product.objects.create(**validated_data)
-        product.images.add(img)
-        product.user = self.context['request'].user
+        if img:
+            product.images.add(img)
         product.save()
         return product

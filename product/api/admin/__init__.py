@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Product, ProductImage
-from product.api.admin_product.serializers import AdminProductSerializer, ImageProductSerializer
+from product.api.admin.serializers import AdminProductSerializer, ImageProductSerializer
 
 
 class ProductApiViewSet(ModelViewSet):
