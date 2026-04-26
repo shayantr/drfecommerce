@@ -3,12 +3,10 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractB
 
 from core.models.base_model import BaseModel
 
-# todo rename the choices
 class Roles(models.IntegerChoices):
     CUSTOMER = 1, 'Customer'
     ADMIN = 2, 'Admin'
     ACCOUNTANT = 3, 'Accountant'
-
 
 class UserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):
@@ -16,12 +14,13 @@ class UserManager(BaseUserManager):
             raise ValueError('User must have phone number')
         user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
-        user.role = Roles.ADMIN
+        user.role = Roles.CUSTOMER
         user.save(using=self._db)
         return user
     def create_superuser(self, phone, password=None, **extra_fields):
         user = self.create_user(phone, password, **extra_fields)
         user.is_staff = True
+        user.role = Roles.ADMIN
         user.is_superuser = True
         user.save(using=self._db)
         return user
@@ -35,7 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Users'
 
     phone = models.CharField(max_length=11, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
     name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     is_staff = models.BooleanField(default=False)
