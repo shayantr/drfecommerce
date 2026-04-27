@@ -3,6 +3,16 @@ from rest_framework import serializers
 
 from core.models import Cart, UserCart, Product
 
+class FinalPriceSerializer(serializers.ListSerializer):
+    def to_representation(self, instance):
+        representation = super(FinalPriceSerializer, self).to_representation(instance)
+        final_price = sum(i['total_price'] for i in representation)
+        print(representation)
+        return [
+            {'results': representation,
+             'final_price': final_price
+             }]
+
 
 class AddToCartSerializer(serializers.ModelSerializer):
     cart = serializers.CharField(read_only=True)
@@ -11,6 +21,7 @@ class AddToCartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["id", "cart", "product", "quantity", "total_price"]
         extra_kwargs = {"id": {"read_only": True}}
+        list_serializer_class = FinalPriceSerializer
 
     def get_total_price(self, obj):
         return obj.product.price * obj.quantity
@@ -49,11 +60,10 @@ class AddToCartSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         product = validated_data.get('product')
         quantity = validated_data.get('quantity')
-        with transaction.atomic():
-            if quantity > product.quantity:
-                raise serializers.ValidationError("Quantity must be less than product quantity")
-            else:
-                instance.quantity = quantity
-                instance.save()
+        if quantity > product.quantity:
+            raise serializers.ValidationError("Quantity must be less than product quantity")
+        else:
+            instance.quantity = quantity
+            instance.save()
         return instance
 

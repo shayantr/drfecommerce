@@ -17,14 +17,3 @@ class AddToCartViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Cart.objects.select_related('product', 'cart__user').filter(cart__user=self.request.user)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        final_price = 0
-        for s in serializer.data:
-            final_price += s['total_price']
-        return Response({
-            'results': serializer.data,
-            'final_price': final_price
-        })

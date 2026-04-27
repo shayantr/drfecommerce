@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser, BaseUserManager
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from core.models.base_model import BaseModel
 
@@ -45,6 +46,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'phone'
 
+    def get_token(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': self,
+            'role': self.role,
+        }
+
 
 class UserAddress(BaseModel):
     class Meta:
@@ -58,6 +68,8 @@ class UserAddress(BaseModel):
     post_code = models.CharField(max_length=255)
     province = models.CharField(max_length=255)
     details = models.TextField()
+
+
 
 
 

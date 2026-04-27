@@ -10,6 +10,7 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "name", "last_name", "street", "city", "province", "post_code", "details"]
         extra_kwargs = {'id': {'read_only': True}}
 
+
 class AddressListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAddress
