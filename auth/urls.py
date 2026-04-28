@@ -1,7 +1,9 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from auth.api.user import LoginApiView, RegisterApiView
+from auth.api.login import LoginApiView
+from auth.api.register import RegisterApiView
+
 app_name = 'auth'
 
 urlpatterns = [
