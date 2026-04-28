@@ -10,7 +10,7 @@ from core.models.base_model import BaseModel
 def image_path(instance, filename):
     ext = os.path.splitext(filename)[1]
     filename = f'{uuid.uuid4()}{ext}'
-    return os.path.join('uploads', 'media', filename)
+    return os.path.join(settings.AWS_DIR, filename)
 
 class Product(BaseModel):
     class Meta:
@@ -42,7 +42,7 @@ class Product(BaseModel):
 class ProductImage(BaseModel):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='images')
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images', blank=True, null=True)
-    image = models.ImageField(verbose_name='Image', upload_to=image_path)
+    image = models.ImageField( upload_to=image_path)
     main_image = models.BooleanField(default=False)
 
     class Meta:

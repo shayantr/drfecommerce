@@ -145,27 +145,28 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": datetime.timedelta(days=7),
 }
 
+STORAGE = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+
+    },
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-# STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
 AWS_ACCESS_KEY_ID = "admin"
 AWS_SECRET_ACCESS_KEY = "password123"
-
-AWS_STORAGE_BUCKET_NAME = "ecommerce"
-
-AWS_S3_ENDPOINT_URL = "http://localhost:9001"
+AWS_STORAGE_BUCKET_NAME = "buck1"
+AWS_DIR="files/"
+AWS_S3_ENDPOINT_URL = "http://localhost:9000"
 AWS_S3_REGION_NAME = "us-east-1"
-
-AWS_S3_ADDRESSING_STYLE = "path"
-AWS_S3_SIGNATURE_VERSION = "s3v4"
-
+AWS_S3_VERIFY = True
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = "public-read"
-
 STATIC_URL = 'static/'
-MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
+STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/media/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 # MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
 # STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/static/"
