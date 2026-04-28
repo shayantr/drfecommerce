@@ -1,15 +1,16 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from core.serializer import PhoneSerializer
+from core.serializer import PasswordFieldSerializer, PhoneFieldSerializer
 
 
 class LoginSerializer(serializers.Serializer):
-    phone = PhoneSerializer()
-    password = serializers.CharField(write_only=True)
-    user = serializers.HiddenField(default=None)
+    phone = PhoneFieldSerializer()
+    password = PasswordFieldSerializer()
+    user = serializers.CharField(default=None)
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
+    role = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
         user = authenticate(
@@ -22,5 +23,5 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = validated_data['user']
         return user.get_token()

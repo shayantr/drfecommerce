@@ -9,7 +9,7 @@ SIGN_IN_URL = reverse("auth:login")
 REGISTER_URL = reverse("auth:register")
 
 
-def create_user(phone="09380043744", password="password"):
+def create_user(phone="09380043744", password="password@123ASD"):
     user = get_user_model().objects.create_user(phone=phone, password=password)
     return user
 
@@ -22,7 +22,7 @@ class PrivateUserApiTest(TestCase):
         user = create_user()
         payload = {
             'phone': '09380043744',
-            'password': 'password'
+            'password': 'password@123ASD'
         }
         res = self.client.post(SIGN_IN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
@@ -31,8 +31,8 @@ class PrivateUserApiTest(TestCase):
     def test_register(self):
         payload = {
             'phone': '09380043744',
-            'password': 'password',
-            'password2': 'password',
+            'password': 'password@123ASD',
+            'password_2': 'password@123ASD',
         }
         res = self.client.post(REGISTER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)

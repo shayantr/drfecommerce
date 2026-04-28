@@ -2,13 +2,13 @@ from django.contrib.auth import authenticate, login
 from django.core import validators
 from rest_framework import serializers, status
 from core.models import User
-from core.serializer import PhoneSerializer, PasswordSerializer
+from core.serializer import PasswordFieldSerializer, PhoneFieldSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    phone = PhoneSerializer()
-    password = PasswordSerializer()
-    password_2 = PasswordSerializer()
+    phone = PhoneFieldSerializer()
+    password = PasswordFieldSerializer()
+    password_2 = PasswordFieldSerializer()
 
     class Meta:
         model = User
