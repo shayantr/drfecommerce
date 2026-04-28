@@ -1,16 +1,13 @@
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import UserAddress
+from core.views import AuthenticatedUserViewSet
 from user.api.user.serializers import AddressSerializer, AddressListSerializer
 
 
-class DetailAddressViewSet(ModelViewSet):
+class DetailAddressViewSet(AuthenticatedUserViewSet, ModelViewSet):
     queryset = UserAddress.objects.all()
     serializer_class = AddressSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
         if self.action == 'list':
