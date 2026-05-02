@@ -6,8 +6,8 @@ from core.serializer import PasswordFieldSerializer, PhoneFieldSerializer
 
 class LoginSerializer(serializers.Serializer):
     phone = PhoneFieldSerializer()
-    password = PasswordFieldSerializer()
-    user = serializers.CharField(default=None)
+    password = serializers.CharField(write_only=True)
+    user = serializers.CharField(read_only=True, default=None)
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
     role = serializers.CharField(read_only=True)

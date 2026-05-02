@@ -13,8 +13,6 @@ import datetime
 import logging
 from pathlib import Path
 
-import boto3
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -145,7 +143,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": datetime.timedelta(days=7),
 }
 
-STORAGE = {
+STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
 
