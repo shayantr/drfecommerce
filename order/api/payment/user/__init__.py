@@ -10,8 +10,6 @@ from core.views import AuthenticatedUserViewSet
 from order.api.payment.user.serializers import PaymentSerializer
 
 
-
-
 class PaymentModelViewSet(AuthenticatedUserViewSet, GenericViewSet, mixins.CreateModelMixin):
     serializer_class = PaymentSerializer
     model = Payment
@@ -30,7 +28,3 @@ class PaymentModelViewSet(AuthenticatedUserViewSet, GenericViewSet, mixins.Creat
         result = gateway.verify(authority=authority, status=status, payment=payment)
 
         return Response(result)
-
-
-
-

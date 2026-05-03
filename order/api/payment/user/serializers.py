@@ -7,6 +7,7 @@ from core.utills import get_client_ip
 
 class PaymentSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Payment
         fields = ['id', 'user', 'order', 'amount', 'status', 'ip_address', 'transaction_id', 'gateway']
@@ -18,6 +19,10 @@ class PaymentSerializer(serializers.ModelSerializer):
         ip = get_client_ip(self.context.get('request'))
         res = gateway.request()
         transaction_id = res['data']['authority']
-        payment = Payment.objects.create(**validated_data, transaction_id=transaction_id, amount=order.total_amount, gateway=gateway, ip_address=ip)
+        payment = Payment.objects.create(
+            **validated_data,
+            transaction_id=transaction_id,
+            amount=order.total_amount,
+            gateway=gateway,
+            ip_address=ip)
         return payment
-
