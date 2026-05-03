@@ -4,10 +4,10 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Order, UserOrder, Payment
-from order.api.admin.serializers import AdminUserOrderSerializer, AdminPaymentSerializer, OrderDetailSerializer
+from order.api.order.admin.serializers import AdminUserOrderSerializer, OrderDetailSerializer, AdminPaymentSerializer
 
 
-class OrderViewSet(mixins.RetrieveModelMixin,
+class AdminOrderViewSet(mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
@@ -19,7 +19,7 @@ class OrderViewSet(mixins.RetrieveModelMixin,
     def get_queryset(self):
         return self.queryset.all().prefetch_related('address')
 
-class OrderDetailViewSet(mixins.RetrieveModelMixin,
+class AdminOrderDetailViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          GenericViewSet):
     queryset = UserOrder.objects.all()
@@ -32,7 +32,7 @@ class OrderDetailViewSet(mixins.RetrieveModelMixin,
 
 
 
-class PaymentViewSet(mixins.ListModelMixin,
+class AdminPaymentViewSet(mixins.ListModelMixin,
                      mixins.UpdateModelMixin,
                      GenericViewSet):
     queryset = Payment.objects.all()

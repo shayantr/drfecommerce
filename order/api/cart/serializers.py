@@ -7,11 +7,8 @@ class FinalPriceSerializer(serializers.ListSerializer):
     def to_representation(self, instance):
         representation = super(FinalPriceSerializer, self).to_representation(instance)
         final_price = sum(i['total_price'] for i in representation)
-        print(representation)
-        return [
-            {'results': representation,
-             'final_price': final_price
-             }]
+        representation.append({'final_price': final_price})
+        return representation
 
 
 class AddToCartSerializer(serializers.ModelSerializer):

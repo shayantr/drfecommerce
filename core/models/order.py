@@ -16,7 +16,7 @@ class UserOrder(BaseModel):
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='orders')
     status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.PENDING)
-    total_amount = models.IntegerField()
+    total_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
 
 

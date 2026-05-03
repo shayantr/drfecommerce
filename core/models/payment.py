@@ -14,7 +14,7 @@ class Payment(BaseModel):
     order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='payments')
     amount = models.IntegerField()
     status = models.IntegerField(choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
-    ip_address = models.GenericIPAddressField()
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
     transaction_id = models.CharField(max_length=255)
     gateway = models.CharField(max_length=255)
 
