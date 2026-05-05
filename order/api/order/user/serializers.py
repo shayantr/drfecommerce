@@ -1,40 +1,75 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from core.models import Order, Cart, UserOrder, UserCart, Product
-
+from order.gatway import ZarinGatWay
+from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
+from core.tasks import hold_order_status
 
 class UserOrderSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    link = serializers.CharField(read_only=True)
 
     class Meta:
         model = UserOrder
-        fields = ['id', 'user', 'status', 'total_amount', 'address']
+        fields = ['id', 'user', 'status', 'total_amount', 'address', 'link']
         read_only_fields = ('id', 'status', 'total_amount')
 
     def _buy_product(self, product, quantity):
         product = Product.objects.select_for_update().get(pk=product.pk)
         product.quantity -= quantity
         product.save()
+
+    def validate(self, attrs):
+        user = attrs.get('user')
+        cart = UserCart.objects.filter(user=user)
+        if not cart.exists():
+            raise serializers.ValidationError('cart is empty')
+        else:
+            cart = cart.first()
+        items = Cart.objects.filter(cart=cart)
+        for item in items:
+            if item.product.quantity < item.quantity:
+                raise serializers.ValidationError('quantity is less than product quantity')
+            if item.product.is_active == False or item.product.is_deleted == True or item.product.quantity == 0:
+                raise serializers.ValidationError('product is not active or available')
+        return attrs
+
     def _add_to_order(self, order):
         user = self.context['request'].user
         cart = UserCart.objects.get(user=user)
         items = Cart.objects.filter(cart=cart)
         total = 0
-        with transaction.atomic():
-            for item in items:
-                if item.product.quantity < item.quantity:
-                    raise serializers.ValidationError('quantity is less than product quantity')
-                if item.product.is_active == False or item.product.is_deleted == True or item.product.quantity == 0:
-                    raise serializers.ValidationError('product is not active or available')
-                self._buy_product(item.product, item.quantity)
-                Order.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-                total += item.product.price * item.quantity
+        for item in items:
+            self._buy_product(item.product, item.quantity)
+            Order.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+            total += item.product.price * item.quantity
+        cart.delete()
         return total
 
     def create(self, validated_data):
         user_order = UserOrder.objects.create(**validated_data)
-        total = self._add_to_order(user_order)
-        user_order.total_amount = total
-        user_order.save()
-        return user_order
+        user = user_order.user
+        with transaction.atomic():
+            total = self._add_to_order(user_order)
+            user_order.total_amount = total
+            user_order.save()
+            gateway = ZarinGatWay(user_order)
+            res = gateway.request()
+            Payment.objects.create(
+                user=user,
+                link=gateway.get_link(res['authority']),
+                order=user_order,
+                amount=total,
+                gateway=gateway,
+                status=1
+            )
+            hold_order_status.apply_async(
+    args=[user_order.id],
+    countdown=900
+)
+
+        return {
+            'total_amount': total,
+            'address': user_order.address,
+            'link': gateway.get_link(res['authority'])
+        }

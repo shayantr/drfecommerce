@@ -11,6 +11,26 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql
 
+  redis:
+    image: redis:8.6.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight-data:/data
+    restart: unless-stopped
+    depends_on:
+      - redis
+
   minio:
     image: minio/minio
     restart: unless-stopped
@@ -44,5 +64,7 @@ services:
       mc mb --ignore-existing local/$$MINIO_BUCKET
       "
 volumes:
+  redis_data:
+  redis-insight-data:
   minio_data:
     driver: local

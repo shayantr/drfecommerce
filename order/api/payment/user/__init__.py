@@ -1,20 +1,23 @@
 from rest_framework import mixins
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from core.gatway import ZarinGatWay
+from order.gatway import ZarinGatWay
 from core.models import Payment
-from core.views import AuthenticatedUserViewSet
 from order.api.payment.user.serializers import PaymentSerializer
 
 
-class PaymentModelViewSet(AuthenticatedUserViewSet, GenericViewSet, mixins.CreateModelMixin):
+class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
     serializer_class = PaymentSerializer
     model = Payment
 
-    @action(detail=False, methods=['get'])
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def call_back(self, request: Request, *args, **kwargs):
         authority = request.query_params.get('Authority')
         status = request.query_params.get('Status')
@@ -25,6 +28,9 @@ class PaymentModelViewSet(AuthenticatedUserViewSet, GenericViewSet, mixins.Creat
         payment = Payment.objects.get(transaction_id=authority)
 
         gateway = ZarinGatWay(order=payment.order)
-        result = gateway.verify(authority=authority, status=status, payment=payment)
+        result = gateway.verify(authority=authority, status=status)
+        payment.status = result
+        payment.save()
 
         return Response(result)
+

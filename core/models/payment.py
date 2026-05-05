@@ -17,4 +17,5 @@ class Payment(BaseModel):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     transaction_id = models.CharField(max_length=255)
     gateway = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, blank=True, null=True)
 

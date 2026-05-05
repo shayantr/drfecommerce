@@ -1,5 +1,7 @@
 import requests
 from django.urls import reverse
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 
 class ZarinGatWay:
@@ -14,6 +16,7 @@ class ZarinGatWay:
         self.order = order
 
     def request(self):
+
         payload = {
             'merchant_id': self.MERCHANT_ID,
             'amount': self.order.total_amount,
@@ -26,7 +29,17 @@ class ZarinGatWay:
 
         }
         res = requests.post(self.PAYMENT_URL, json=payload)
-        return res.json()
+        data = res.json()
+        if data['data']['code'] == 100:
+            return data['data']
+        else:
+            return data['errors']
+
+    def get_link(self, authority):
+        if authority:
+            return f"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
+        else:
+            return serializers.ValidationError('error on request')
 
     def verify(self, authority, status, payment):
         payload = {
@@ -37,10 +50,10 @@ class ZarinGatWay:
         res = requests.post(self.VERIFY_URL, json=payload)
         result = res.json()
         if result['data']['code'] == 100 or 101:
-            payment.status = 2
+            status = 2
         else:
-            payment.status = 3
-        payment.save()
+            status = 3
+        return status
 
     def __str__(self):
         return "ZarinGatWay"

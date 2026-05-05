@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import datetime
 import logging
 from pathlib import Path
+import environ
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8^nh1e=2e#4b6kj)t(6_5+m311o3d@fp3@*fvqi29(1^ua7&xw'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_simplejwt',
     'storages',
+    'django_celery_results',
     #custom apps
     'core',
 ]
@@ -54,6 +59,23 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'default'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
 
 ROOT_URLCONF = 'app.urls'
 
@@ -153,17 +175,17 @@ STORAGES = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-AWS_ACCESS_KEY_ID = "admin"
-AWS_SECRET_ACCESS_KEY = "password123"
-AWS_STORAGE_BUCKET_NAME = "buck1"
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
 AWS_DIR="files/"
-AWS_S3_ENDPOINT_URL = "http://localhost:9000"
-AWS_S3_REGION_NAME = "us-east-1"
+AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
 AWS_S3_VERIFY = True
 AWS_S3_FILE_OVERWRITE = False
 STATIC_URL = 'static/'
 STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
-MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/media/'
+MEDIA_URL = env('MEDIA_URL')
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
