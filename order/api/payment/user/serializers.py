@@ -28,7 +28,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         ip = get_client_ip(self.context.get('request'))
         res = gateway.request()
         transaction_id = res['authority']
-        link = gateway.get_link()
+        link = gateway.get_link(transaction_id)
         payment = Payment.objects.create(
             **validated_data,
             transaction_id=transaction_id,
