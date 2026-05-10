@@ -1,5 +1,5 @@
 import tempfile
-from unittest import TestCase
+from django.test import TestCase
 
 from PIL import Image
 from django.contrib.auth import get_user_model
@@ -7,8 +7,6 @@ from rest_framework.test import APIClient
 from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import Token, RefreshToken
-
-from core.models import User, ProductImage
 
 UPLOAD_IMAGE = reverse('product:upload-image')
 def create_superuser(phone='09380043744', password="123456778"):
