@@ -1,14 +1,19 @@
 from celery import shared_task
+from django.apps import apps
 
-from core.models import UserOrder
-from core.models.order import OrderStatus, Order
-from core.models.payment import PaymentStatus, Payment
+from core.models.order import OrderStatus
 from purchase.gatway import ZarinGatWay
 from purchase.service import restore_product_reservation
+UserOrder = apps.get_model('core', 'UserOrder')
+Order = apps.get_model('core', 'Order')
+Payment = apps.get_model('core', 'Payment')
+
 
 
 @shared_task(bind=True)
 def hold_order_status(self, order_id):
+    from core.models.payment import PaymentStatus
+
     user_order = UserOrder.objects.get(id=order_id)
     payment = Payment.objects.filter(order=user_order, status=PaymentStatus.PAID)
     if payment.exists():
@@ -24,6 +29,8 @@ def hold_order_status(self, order_id):
 
 @shared_task(bind=True)
 def verify_payment(self, payment):
+    from core.models.payment import PaymentStatus
+
     try:
         if payment.filter(status=PaymentStatus.PENDING).exists():
             gateway = ZarinGatWay(order=payment.order)
