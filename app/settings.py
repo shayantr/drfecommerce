@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     #custom apps
     'core',
+    'purchase',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_CACHE_BACKEND = 'default'
 
 CACHES = {

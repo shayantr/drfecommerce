@@ -1,7 +1,6 @@
 import requests
 from django.urls import reverse
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 
 class ZarinGatWay:
@@ -10,7 +9,7 @@ class ZarinGatWay:
     VERIFY_URL = "https://sandbox.zarinpal.com/pg/v4/payment/verify.json"
 
     def _call_back_url(self):
-        return f"localhost:8000{reverse('orders:payment-call-back')}"
+        return f"localhost:8000{reverse('purchase:payment-call-back')}"
 
     def __init__(self, order):
         self.order = order
@@ -41,7 +40,7 @@ class ZarinGatWay:
         else:
             return serializers.ValidationError('error on request')
 
-    def verify(self, authority, status, payment):
+    def verify(self, authority):
         payload = {
             "merchant_id": self.MERCHANT_ID,
             "amount": self.order.total_amount,

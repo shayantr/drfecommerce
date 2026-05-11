@@ -1,7 +1,7 @@
 from rest_framework import viewsets, mixins
 from core.models import UserOrder
-from core.views import AuthenticatedUserViewSet
-from order.api.order.user.serializers import UserOrderSerializer
+from core.utills.permissions import AuthenticatedUserViewSet
+from purchase.api.user.order.serializers import UserOrderSerializer
 
 
 class UserOrderViewSet(AuthenticatedUserViewSet, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin):

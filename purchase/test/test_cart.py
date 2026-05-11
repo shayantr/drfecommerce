@@ -9,12 +9,12 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APIClient
 from core.models import Cart, UserCart, Product
-from order.api.user.cart import AddToCartSerializer
+from purchase.api.user.cart import AddToCartSerializer
 
-CART_URL = reverse("orders:carts-list")
+CART_URL = reverse("purchase:carts-list")
 
 def cart_detail_url(cart_id):
-    return reverse("orders:carts-detail", kwargs={'pk':cart_id})
+    return reverse("purchase:carts-detail", kwargs={'pk':cart_id})
 
 def create_user(phone='09181043742', password='12345!@#Asd'):
     """create and return user """

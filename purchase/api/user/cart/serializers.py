@@ -30,6 +30,11 @@ class AddToCartSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Stock must be available")
         return product
 
+    def validate_quantity(self, qty):
+        if qty == 0:
+            raise serializers.ValidationError("Quantity cannot be 0!")
+        return qty
+
     def validate(self, attrs):
         product = attrs["product"]
         quantity = attrs["quantity"]
@@ -54,13 +59,28 @@ class AddToCartSerializer(serializers.ModelSerializer):
                item = Cart.objects.create(cart=user_cart[0], product=product, quantity=quantity)
         return item
 
-    def update(self, instance, validated_data):
-        product = validated_data.get('product')
-        quantity = validated_data.get('quantity')
+
+class UpdateCartSerializer(serializers.ModelSerializer):
+    cart = serializers.CharField(read_only=True)
+    total_price = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = Cart
+        fields = ["id", "cart", "product", "quantity", "total_price"]
+        extra_kwargs = {"id": {"read_only": True}, "product": {"read_only": True}}
+        list_serializer_class = FinalPriceSerializer
+
+    def get_total_price(self, obj):
+        return obj.product.price * obj.quantity
+
+    def validate_quantity(self, quantity):
+        product = self.instance.product
+        if quantity == 0:
+            raise serializers.ValidationError("Quantity cannot be 0!")
         if quantity > product.quantity:
             raise serializers.ValidationError("Quantity must be less than product quantity")
-        else:
-            instance.quantity = quantity
-            instance.save()
-        return instance
+        return quantity
 
+    def update(self, instance, validated_data):
+        instance.quantity = validated_data.get('quantity')
+        instance.save()
+        return instance

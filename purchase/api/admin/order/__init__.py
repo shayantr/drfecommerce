@@ -1,10 +1,10 @@
-from rest_framework import viewsets, mixins
+from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Order, UserOrder, Payment
-from order.api.order.admin.serializers import AdminUserOrderSerializer, OrderDetailSerializer, AdminPaymentSerializer
+from core.models import UserOrder, Payment
+from purchase.api.admin.order.serializers import AdminUserOrderSerializer, OrderDetailSerializer, AdminPaymentSerializer
 
 
 class AdminOrderViewSet(mixins.RetrieveModelMixin,

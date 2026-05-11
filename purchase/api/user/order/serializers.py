@@ -1,9 +1,11 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from order.gatway import ZarinGatWay
+from core.utills.get_client_ip import get_client_ip
+from purchase.gatway import ZarinGatWay
 from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
-from core.tasks import hold_order_status
+from purchase.tasks import hold_order_status, verify_payment
+
 
 class UserOrderSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -55,18 +57,20 @@ class UserOrderSerializer(serializers.ModelSerializer):
             user_order.save()
             gateway = ZarinGatWay(user_order)
             res = gateway.request()
+            ip = get_client_ip(self.context.get('request'))
             Payment.objects.create(
                 user=user,
                 link=gateway.get_link(res['authority']),
                 order=user_order,
                 amount=total,
                 gateway=gateway,
-                status=1
+                status=1,
+                ip_address=ip
             )
             hold_order_status.apply_async(
-    args=[user_order.id],
-    countdown=900
-)
+                args=[user_order.id],
+                countdown= 60 * 60   # Keep Order for 1 hour
+            )
 
         return {
             'total_amount': total,
