@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from core.models import UserAddress
-from core.views import AuthenticatedUserViewSet
+from core.utills.permissions import AuthenticatedUserViewSet
 from user.api.user.serializers import AddressSerializer, AddressListSerializer
 
 

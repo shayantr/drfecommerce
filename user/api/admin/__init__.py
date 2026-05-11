@@ -1,8 +1,8 @@
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication, BasicAuthentication
+from rest_framework.authentication import BasicAuthentication
 
 from core.models import User
-from core.permissions import IsAdminProvider
+from core.utills.permissions import IsAdminProvider
 from user.api.admin.serializers import UserSerializer
 
 

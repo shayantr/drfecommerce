@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.core import validators
 from rest_framework import serializers, status
 from core.models import User
-from core.serializer import PasswordFieldSerializer, PhoneFieldSerializer
+from core.utills.custoum_field_serializer import PhoneFieldSerializer, PasswordFieldSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):

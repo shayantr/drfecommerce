@@ -5,14 +5,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Product, ProductImage
+from core.utills.permissions import AdminAuthentication
 from product.api.admin.serializers import AdminProductSerializer, ImageProductSerializer
 
 
-class ProductApiViewSet(ModelViewSet):
+class ProductApiViewSet(AdminAuthentication, ModelViewSet):
     serializer_class = AdminProductSerializer
     queryset = Product.objects.all()
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminUser]
     lookup_field = 'slug'
 
 
