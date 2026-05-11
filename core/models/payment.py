@@ -1,6 +1,8 @@
 from django.db import models
 
 from core.models.base_model import BaseModel
+from purchase.tasks import verify_payment
+
 
 class PaymentStatus(models.IntegerChoices):
     PENDING = 1, 'Pending'
@@ -18,4 +20,11 @@ class Payment(BaseModel):
     transaction_id = models.CharField(max_length=255)
     gateway = models.CharField(max_length=255)
     link = models.CharField(max_length=255, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        verify_payment.apply_async(
+            args=[self],
+            countdown= 60 * 15 # check after 15 minutes
+        )
 
