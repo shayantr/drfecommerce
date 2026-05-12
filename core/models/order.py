@@ -20,6 +20,14 @@ class UserOrder(BaseModel):
     total_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        from purchase.tasks import check_order_status
+        check_order_status.apply_async(
+            args=[self.id],
+            countdown=60 * 60  # Keep Order for 1 hour
+        )
+
 
 class Order(BaseModel):
     class Meta:

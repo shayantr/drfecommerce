@@ -27,12 +27,28 @@ class ZarinGatWay:
             }
 
         }
-        res = requests.post(self.PAYMENT_URL, json=payload)
-        data = res.json()
-        if data['data']['code'] == 100:
-            return data['data']
-        else:
-            return data['errors']
+        try:
+            response = requests.post(self.PAYMENT_URL, json=payload, timeout=10)
+            result = response.json()
+        except requests.Timeout:
+            return {
+                'success': False,
+                'error': "Gateway timed out.",
+            }
+        except requests.RequestException as e:
+            return {
+                "success": False,
+                "error": str(e),
+            }
+        if result.get("errors"):
+            return {
+                "success": False,
+                "error": result["errors"],
+            }
+        return {
+            "success": True,
+            "data": result['data'],
+        }
 
     def get_link(self, authority):
         if authority:
@@ -40,19 +56,38 @@ class ZarinGatWay:
         else:
             return serializers.ValidationError('error on request')
 
+
     def verify(self, authority):
         payload = {
             "merchant_id": self.MERCHANT_ID,
             "amount": self.order.total_amount,
             "authority": authority,
         }
-        res = requests.post(self.VERIFY_URL, json=payload)
-        result = res.json()
-        if result['data']['code'] == 100 or 101:
-            status = 2
+        try:
+            res = requests.post(self.VERIFY_URL, json=payload, timeout=10)
+            result = res.json()
+        except requests.RequestException as e:
+            return {
+                "success": False,
+                "error": str(e),
+            }
+        if result.get("errors"):
+            return {
+                "success": False,
+                "error": result["errors"],
+            }
+        code = result['data']['code']
+        if code in [100, 101]:
+            return {
+                "success": True,
+                "data": result['data'],
+            }
         else:
-            status = 3
-        return status
+            return {
+                "success": False,
+                "error": result['errors'],
+            }
+
 
     def __str__(self):
         return "ZarinGatWay"

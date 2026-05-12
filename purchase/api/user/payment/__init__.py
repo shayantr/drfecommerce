@@ -19,28 +19,25 @@ class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
     def get_queryset(self):
         return Payment.objects.filter(user=self.request.user)
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny], authentication_classes=[])
     def call_back(self, request: Request, *args, **kwargs):
         authority = request.query_params.get('Authority')
         status = request.query_params.get('Status')
 
         if not authority:
             return Response({'error': 'Authority missing'}, status=400)
-        if status == "OK":
-            payment = Payment.objects.get(transaction_id=authority)
-            gateway = ZarinGatWay(order=payment.order)
-            result = gateway.verify(authority=authority)
-            if result == PaymentStatus.PAID:
-                order = UserOrder.objects.get(id=payment.order_id)
-                order.status = OrderStatus.PENDING
-                order.save(update_fields=['status'])
+        if status == "OK" or 'OKback':
+            try:
+                payment = Payment.objects.select_related('order').get(transaction_id=authority)
+                gateway = ZarinGatWay(order=payment.order)
+                result = gateway.verify(authority=authority)
+                payment.order.status = OrderStatus.PENDING
+                payment.order.save(update_fields=['status'])
                 payment.status = result
                 payment.save(update_fields=['status'])
-                return Response(result)
-            elif result == PaymentStatus.FAILED:
-                return Response({'error': 'Payment failed'}, status=400)
-            return Response({'error': 'cant get payment result'}, status=500)
-
-        elif status == "NOK":
+            except Payment.DoesNotExist:
+                return Response({"error": 'Payment not found'}, status=404)
+            except:
+                return Response(result, status=400)
+        else:
             return Response({'error': 'Authority failed'}, status=400)
-        return Response({'error': 'Authority failed'}, status=400)

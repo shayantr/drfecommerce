@@ -4,7 +4,6 @@ from rest_framework import serializers
 from core.utills.get_client_ip import get_client_ip
 from purchase.gatway import ZarinGatWay
 from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
-from purchase.tasks import hold_order_status, verify_payment
 
 
 class UserOrderSerializer(serializers.ModelSerializer):
@@ -43,37 +42,50 @@ class UserOrderSerializer(serializers.ModelSerializer):
         total = 0
         for item in items:
             self._buy_product(item.product, item.quantity)
-            Order.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-            total += item.product.price * item.quantity
+            if item.product.sale_price:
+                Order.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.sale_price
+                )
+                total += item.product.sale_price * item.quantity
+            else:
+                Order.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+                total += item.product.price * item.quantity
         cart.delete()
         return total
 
     def create(self, validated_data):
-        user_order = UserOrder.objects.create(**validated_data)
-        user = user_order.user
         with transaction.atomic():
+            user_order = UserOrder.objects.create(**validated_data)
+            user = user_order.user
             total = self._add_to_order(user_order)
             user_order.total_amount = total
             user_order.save()
             gateway = ZarinGatWay(user_order)
             res = gateway.request()
+            if not res['success']:
+                raise serializers.ValidationError(res['error'])
             ip = get_client_ip(self.context.get('request'))
             Payment.objects.create(
                 user=user,
-                link=gateway.get_link(res['authority']),
+                transaction_id=res['data']['authority'],
+                link=gateway.get_link(res['data']['authority']),
                 order=user_order,
                 amount=total,
                 gateway=gateway,
                 status=1,
                 ip_address=ip
             )
-            hold_order_status.apply_async(
-                args=[user_order.id],
-                countdown= 60 * 60   # Keep Order for 1 hour
-            )
 
         return {
             'total_amount': total,
             'address': user_order.address,
-            'link': gateway.get_link(res['authority'])
+            'link': gateway.get_link(res['data']['authority'])
         }

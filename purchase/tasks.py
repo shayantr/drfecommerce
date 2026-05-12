@@ -1,4 +1,5 @@
 from celery import shared_task
+from celery.exceptions import MaxRetriesExceededError
 from django.apps import apps
 
 from core.models.order import OrderStatus
@@ -11,7 +12,7 @@ Payment = apps.get_model('core', 'Payment')
 
 
 @shared_task(bind=True)
-def hold_order_status(self, order_id):
+def check_order_status(self, order_id):
     from core.models.payment import PaymentStatus
 
     user_order = UserOrder.objects.get(id=order_id)
@@ -27,20 +28,27 @@ def hold_order_status(self, order_id):
             restore_product_reservation(item)
 
 
-@shared_task(bind=True)
-def verify_payment(self, payment):
+@shared_task(bind=True, max_retries=2, default_retry_delay=60)
+def verify_payment(self, payment_id):
     from core.models.payment import PaymentStatus
-
     try:
-        if payment.filter(status=PaymentStatus.PENDING).exists():
-            gateway = ZarinGatWay(order=payment.order)
-            result = gateway.verify(authority=payment.transaction_id)
-            payment.status = result
+        payment = Payment.objects.select_related('order').get(id=payment_id)
+        if payment.status != PaymentStatus.PENDING:
+            return None
+        gateway = ZarinGatWay(order=payment.order)
+        result = gateway.verify(authority=payment.transaction_id)
+        if result['success']:
+            payment.status = PaymentStatus.PAID
             payment.save(update_fields=['status'])
-            if payment.status == PaymentStatus.PAID:
-                order = UserOrder.objects.get(id=payment.order.id)
-                order.status = OrderStatus.PENDING
-                order.save(update_fields=['status'])
+            payment.order.status = OrderStatus.PENDING
+            payment.order.save(update_fields=['status'])
+            return None
+        payment.status = PaymentStatus.FAILED
+        payment.save(update_fields=['status'])
 
     except Exception as e:
-        raise self.retry(exc=e, countdown=60)
+        try:
+            raise self.retry(exc=e, countdown=60)
+        except MaxRetriesExceededError:
+            payment.status = PaymentStatus.FAILED
+            payment.save(update_fields=['status'])

@@ -34,7 +34,9 @@ class PaymentSerializer(serializers.ModelSerializer):
         gateway = ZarinGatWay(order=order)
         ip = get_client_ip(self.context.get('request'))
         res = gateway.request()
-        transaction_id = res['authority']
+        if not res['success']:
+            raise serializers.ValidationError(res['error'])
+        transaction_id = res['data']['authority']
         link = gateway.get_link(transaction_id)
         payment = Payment.objects.create(
             **validated_data,

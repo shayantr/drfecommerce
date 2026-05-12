@@ -24,7 +24,7 @@ class Payment(BaseModel):
         super().save(*args, **kwargs)
         from purchase.tasks import verify_payment
         verify_payment.apply_async(
-            args=[self],
+            args=[self.id],
             countdown= 60 * 15 # check after 15 minutes
         )
 
