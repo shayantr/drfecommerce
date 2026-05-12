@@ -21,7 +21,10 @@ class AddToCartSerializer(serializers.ModelSerializer):
         list_serializer_class = FinalPriceSerializer
 
     def get_total_price(self, obj):
-        return obj.product.price * obj.quantity
+        if obj.product.sale_price:
+            return obj.product.sale_price * obj.quantity
+        else:
+            return obj.product.price * obj.quantity
 
     def validate_product(self, product):
         if product.quantity < 1:
@@ -70,7 +73,10 @@ class UpdateCartSerializer(serializers.ModelSerializer):
         list_serializer_class = FinalPriceSerializer
 
     def get_total_price(self, obj):
-        return obj.product.price * obj.quantity
+        if obj.product.sale_price:
+            return obj.product.sale_price * obj.quantity
+        else:
+            return obj.product.price * obj.quantity
 
     def validate_quantity(self, quantity):
         product = self.instance.product

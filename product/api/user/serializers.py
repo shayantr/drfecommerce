@@ -13,9 +13,10 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ["title", "slug", "price", "stock_availability", "image_url"]
+        fields = ["title", "slug", "price", "sale_price", "stock_availability", "image_url"]
 
     def get_image_url(self, obj):
         image = obj.images.filter(main_image=True).first()
@@ -24,8 +25,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = Product
         fields = ["title", "slug", "price",
-                  "quantity", "stock_availability",
+                  "sale_price", "quantity",
+                  "stock_availability",
                   "sku", "description", 'images']

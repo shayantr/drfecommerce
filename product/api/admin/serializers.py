@@ -30,9 +30,10 @@ class AdminProductSerializer(serializers.ModelSerializer):
                                  validators=[UniqueValidator(queryset=Product.objects.all(), message="slug name must be unique"),
                                              ])
     price = serializers.IntegerField()
+    sale_price = serializers.IntegerField()
     class Meta:
         model = Product
-        fields = ['id','user', 'title', 'slug', 'description', 'price', 'sku', "images", "images_detail"]
+        fields = ['id','user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail"]
         extra_kwargs = {'id': {'read_only': True}}
 
     def create(self, validated_data):

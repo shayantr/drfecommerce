@@ -21,6 +21,7 @@ class Product(BaseModel):
     slug = models.SlugField(max_length=256, unique=True, blank=True)
     description = models.TextField()
     price = models.IntegerField()
+    sale_price = models.IntegerField(blank=True, null=True)
     quantity = models.IntegerField(default=1)
     stock_availability = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
