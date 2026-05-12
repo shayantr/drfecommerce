@@ -30,11 +30,20 @@ class AdminProductSerializer(serializers.ModelSerializer):
                                  validators=[UniqueValidator(queryset=Product.objects.all(), message="slug name must be unique"),
                                              ])
     price = serializers.IntegerField()
-    sale_price = serializers.IntegerField()
+    sale_price = serializers.IntegerField(required=False, allow_null=True, default=None)
     class Meta:
         model = Product
         fields = ['id','user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail"]
         extra_kwargs = {'id': {'read_only': True}}
+
+    def validate_sale_price(self, sale_price):
+        if sale_price < 1:
+            sale_price = None
+        return sale_price
+    def validate_price(self, price):
+        if price < 1:
+            price = None
+        return price
 
     def create(self, validated_data):
         img = validated_data.pop('images', None)
