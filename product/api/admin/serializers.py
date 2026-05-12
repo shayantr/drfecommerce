@@ -37,11 +37,11 @@ class AdminProductSerializer(serializers.ModelSerializer):
         extra_kwargs = {'id': {'read_only': True}}
 
     def validate_sale_price(self, sale_price):
-        if sale_price < 1:
+        if sale_price is not None and sale_price < 0:
             sale_price = None
         return sale_price
     def validate_price(self, price):
-        if price < 1:
+        if price < 0 and price is not None:
             price = None
         return price
 
