@@ -8,7 +8,9 @@ from core.models import Product, ProductImage
 
 class ImageProductSerializer(serializers.ModelSerializer):
     class Meta:
-        image = serializers.ImageField(required=True, allow_null=False, validators=[validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'], message='file supported only jpg, jpeg and png')])
+        image = serializers.ImageField(required=True, allow_null=False, validators=[
+            validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'],
+                                              message='file supported only jpg, jpeg and png')])
         model = ProductImage
         fields = ['image', 'main_image']
 
@@ -27,19 +29,22 @@ class AdminProductSerializer(serializers.ModelSerializer):
                                               validators.MaxLengthValidator(100, "maximum 100 character or less!"),
                                               ])
     slug = serializers.CharField(trim_whitespace=True,
-                                 validators=[UniqueValidator(queryset=Product.objects.all(), message="slug name must be unique"),
+                                 validators=[UniqueValidator(queryset=Product.objects.all(),
+                                                             message="slug name must be unique"),
                                              ])
     price = serializers.IntegerField()
     sale_price = serializers.IntegerField(required=False, allow_null=True, default=None)
+
     class Meta:
         model = Product
-        fields = ['id','user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail"]
+        fields = ['id', 'user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail"]
         extra_kwargs = {'id': {'read_only': True}}
 
     def validate_sale_price(self, sale_price):
         if sale_price is not None and sale_price < 0:
             sale_price = None
         return sale_price
+
     def validate_price(self, price):
         if price < 0 and price is not None:
             price = None
