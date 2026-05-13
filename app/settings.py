@@ -66,17 +66,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_TASK_TRACK_STARTED = env('CELERY_TASK_TRACK_STARTED')
+CELERY_TASK_TIME_LIMIT = env('CELERY_TASK_TIME_LIMIT')
 
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = env('CELERY_ACCEPT_CONTENT')
+CELERY_TASK_SERIALIZER = env('CELERY_TASK_SERIALIZER')
 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_CACHE_BACKEND = 'default'
-# CELERY_TASK_ALWAYS_EAGER = True  #for test case use
-# CELERY_TASK_EAGER_PROPAGATES = True #for test case use
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')
+CELERY_CACHE_BACKEND = env('CELERY_CACHE_BACKEND')
+# for test case use change it to True
+CELERY_TASK_ALWAYS_EAGER = env('CELERY_TASK_ALWAYS_EAGER')
+CELERY_TASK_EAGER_PROPAGATES = env('CELERY_TASK_EAGER_PROPAGATES')
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -197,3 +198,10 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
 # STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/static/"
+
+#carinpal gateway
+MERCHANT_ID = env('MERCHANT_ID')
+PAYMENT_URL = env('PAYMENT_URL')
+VERIFY_URL = env('VERIFY_URL')
+CALL_BACK_URL = env('CALL_BACK_URL')
+START_PAY_URL = env('START_PAY_URL')

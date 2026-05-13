@@ -2,14 +2,20 @@ import requests
 from django.urls import reverse
 from rest_framework import serializers
 
+from app import settings
+
 
 class ZarinGatWay:
-    MERCHANT_ID = "2549e168-d901-231c-812b-716adbdbef83"
-    PAYMENT_URL = "https://sandbox.zarinpal.com/pg/v4/payment/request.json"
-    VERIFY_URL = "https://sandbox.zarinpal.com/pg/v4/payment/verify.json"
+    MERCHANT_ID = settings.MERCHANT_ID
+    PAYMENT_URL = settings.PAYMENT_URL
+    VERIFY_URL = settings.VERIFY_URL
+    CALL_BACK_URL = settings.CALL_BACK_URL
+    START_PAY_URL = settings.START_PAY_URL
+    def _start_pay_url(self, authority):
+        return f"{self.START_PAY_URL}{authority}"
 
-    def _call_back_url(self):
-        return f"https://localhost:8000{reverse('purchase:payment-call-back')}"
+    def _call_back_url(self, reverse_url):
+        return f"{self.CALL_BACK_URL}{reverse_url}"
 
     def __init__(self, order):
         self.order = order
@@ -19,7 +25,7 @@ class ZarinGatWay:
         payload = {
             'merchant_id': self.MERCHANT_ID,
             'amount': self.order.total_amount,
-            'callback_url': self._call_back_url(),
+            'callback_url': self._call_back_url(reverse('purchase:payment-call-back')),
             "description": "Transaction description.",
             'metadata': {
                 'order_id': str(self.order.id),
@@ -52,7 +58,7 @@ class ZarinGatWay:
 
     def get_link(self, authority):
         if authority:
-            return f"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
+            return self._start_pay_url(authority)
         else:
             return serializers.ValidationError('error on request')
 
