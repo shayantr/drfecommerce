@@ -33,8 +33,9 @@ class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
                 result = gateway.verify(authority=authority)
                 payment.order.status = OrderStatus.PENDING
                 payment.order.save(update_fields=['status'])
-                payment.status = result
+                payment.status = PaymentStatus.PAID
                 payment.save(update_fields=['status'])
+                return Response({'result': result}, status=200)
             except Payment.DoesNotExist:
                 return Response({"error": 'Payment not found'}, status=404)
             except:

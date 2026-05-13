@@ -1,4 +1,6 @@
-from django.db import models
+from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from core.models.base_model import BaseModel
 
@@ -25,6 +27,14 @@ class Payment(BaseModel):
         from purchase.tasks import verify_payment
         verify_payment.apply_async(
             args=[self.id],
-            countdown= 60 * 15 # check after 15 minutes
+            countdown= 2 # check after 15 minutes
         )
+@receiver(post_save, sender=Payment)
+def create_payment_task(sender, instance, created, **kwargs):
+    if created:
+        from purchase.tasks import verify_payment
 
+        transaction.on_commit(lambda:verify_payment.apply_async(
+            args=[instance.id],
+            countdown= 60 * 15 # check after 15 minutes
+        ))

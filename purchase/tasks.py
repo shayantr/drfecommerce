@@ -14,12 +14,11 @@ Payment = apps.get_model('core', 'Payment')
 @shared_task(bind=True)
 def check_order_status(self, order_id):
     from core.models.payment import PaymentStatus
-
     user_order = UserOrder.objects.get(id=order_id)
     payment = Payment.objects.filter(order=user_order, status=PaymentStatus.PAID)
     if payment.exists():
         user_order.status = OrderStatus.PENDING
-        user_order.save()
+        user_order.save(update_fields=['status'])
     else:
         user_order.status = OrderStatus.CANCELLED
         user_order.save()
@@ -50,5 +49,6 @@ def verify_payment(self, payment_id):
         try:
             raise self.retry(exc=e, countdown=60)
         except MaxRetriesExceededError:
-            payment.status = PaymentStatus.FAILED
-            payment.save(update_fields=['status'])
+            if payment:
+                payment.status = PaymentStatus.FAILED
+                payment.save(update_fields=['status'])

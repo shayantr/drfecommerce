@@ -1,4 +1,7 @@
-from django.db import models
+from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from core.models.base_model import BaseModel
 
 
@@ -20,13 +23,15 @@ class UserOrder(BaseModel):
     total_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+@receiver(post_save, sender=UserOrder)
+def create_order_task(sender, instance, created, **kwargs):
+    if created:
         from purchase.tasks import check_order_status
-        check_order_status.apply_async(
-            args=[self.id],
-            countdown=60 * 60  # Keep Order for 1 hour
-        )
+
+        transaction.on_commit(lambda: check_order_status.apply_async(
+            args=[instance.id],
+            countdown=60 * 60
+        ))
 
 
 class Order(BaseModel):

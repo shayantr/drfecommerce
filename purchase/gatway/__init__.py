@@ -9,7 +9,7 @@ class ZarinGatWay:
     VERIFY_URL = "https://sandbox.zarinpal.com/pg/v4/payment/verify.json"
 
     def _call_back_url(self):
-        return f"localhost:8000{reverse('purchase:payment-call-back')}"
+        return f"https://localhost:8000{reverse('purchase:payment-call-back')}"
 
     def __init__(self, order):
         self.order = order
