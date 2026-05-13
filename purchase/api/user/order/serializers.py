@@ -4,6 +4,28 @@ from rest_framework import serializers
 from core.utills.get_client_ip import get_client_ip
 from purchase.gatway import ZarinGatWay
 from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
+from user.api.user import AddressSerializer
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    total_price = serializers.SerializerMethodField()
+    class Meta:
+        model = Order
+        fields = ['product', 'price', 'quantity', 'total_price']
+
+    def get_total_price(self, obj):
+        return obj.price * obj.quantity
+
+
+class UserOrderDetailSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    items = OrderDetailSerializer(source='orders', many=True, read_only=True)
+    address = AddressSerializer(read_only=True, many=False)
+
+    class Meta:
+        model = UserOrder
+        fields = ['id', 'user', 'status', 'total_amount', 'address', 'items']
+
 
 
 class UserOrderSerializer(serializers.ModelSerializer):
