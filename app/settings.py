@@ -75,7 +75,8 @@ CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_CACHE_BACKEND = 'default'
-
+# CELERY_TASK_ALWAYS_EAGER = True  #for test case use
+# CELERY_TASK_EAGER_PROPAGATES = True #for test case use
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
