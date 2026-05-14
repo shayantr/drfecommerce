@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from core.utills.custoum_field_serializer import PhoneFieldSerializer
+from core.utils.custoum_field_serializer import PhoneFieldSerializer
 
 
 class LoginSerializer(serializers.Serializer):

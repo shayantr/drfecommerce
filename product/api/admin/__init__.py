@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Product, ProductImage
-from core.utills.permissions import AdminAuthentication
+from core.utils.permissions import AdminAuthentication
 from product.api.admin.serializers import AdminProductSerializer, ImageProductSerializer
 
 

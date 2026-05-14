@@ -3,8 +3,9 @@ from celery.exceptions import MaxRetriesExceededError
 from django.apps import apps
 
 from core.models.order import OrderStatus
-from purchase.gatway import ZarinGatWay
-from purchase.service import restore_product_reservation
+from purchase.service.product_services import restore_product_reservation
+from purchase.service.zarin_gateway import ZarinGatWay
+
 UserOrder = apps.get_model('core', 'UserOrder')
 Order = apps.get_model('core', 'Order')
 Payment = apps.get_model('core', 'Payment')

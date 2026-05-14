@@ -1,14 +1,9 @@
 from django.db import transaction
+from django.db.models import Sum, F
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
 from rest_framework import serializers
-
-from core.models import Cart, UserCart, Product
-
-class FinalPriceSerializer(serializers.ListSerializer):
-    def to_representation(self, instance):
-        representation = super(FinalPriceSerializer, self).to_representation(instance)
-        final_price = sum(i['total_price'] for i in representation)
-        representation.append({'final_price': final_price})
-        return representation
+from core.models import Cart, UserCart
 
 
 class AddToCartSerializer(serializers.ModelSerializer):
@@ -18,13 +13,10 @@ class AddToCartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["id", "cart", "product", "quantity", "total_price"]
         extra_kwargs = {"id": {"read_only": True}}
-        list_serializer_class = FinalPriceSerializer
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_total_price(self, obj):
-        if obj.product.sale_price:
-            return obj.product.sale_price * obj.quantity
-        else:
-            return obj.product.price * obj.quantity
+        return obj.total_price
 
     def validate_product(self, product):
         if product.quantity < 1:
@@ -64,19 +56,16 @@ class AddToCartSerializer(serializers.ModelSerializer):
 
 
 class UpdateCartSerializer(serializers.ModelSerializer):
-    cart = serializers.CharField(read_only=True)
     total_price = serializers.SerializerMethodField(read_only=True)
+    product = serializers.CharField(source='product.title', read_only=True)
     class Meta:
         model = Cart
-        fields = ["id", "cart", "product", "quantity", "total_price"]
+        fields = ["id", "product", "quantity", "total_price"]
         extra_kwargs = {"id": {"read_only": True}, "product": {"read_only": True}}
-        list_serializer_class = FinalPriceSerializer
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_total_price(self, obj):
-        if obj.product.sale_price:
-            return obj.product.sale_price * obj.quantity
-        else:
-            return obj.product.price * obj.quantity
+        return obj.total_price
 
     def validate_quantity(self, quantity):
         product = self.instance.product
@@ -90,3 +79,19 @@ class UpdateCartSerializer(serializers.ModelSerializer):
         instance.quantity = validated_data.get('quantity')
         instance.save()
         return instance
+
+class ListCartSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    cart_items = UpdateCartSerializer(source='items',many=True, read_only=True)
+    final_price = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = UserCart
+        fields = ['user', 'cart_items', 'final_price']
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_final_price(self, obj):
+        return obj.items.aggregate(
+            total=Sum(F('quantity') * F('product__price'))
+        )['total']
+
+
