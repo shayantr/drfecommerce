@@ -1,14 +1,15 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from core.utills.get_client_ip import get_client_ip
-from purchase.gatway import ZarinGatWay
+from core.utils.get_client_ip import get_client_ip
 from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
+from purchase.service.zarin_gateway import ZarinGatWay
 from user.api.user import AddressSerializer
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
+    product = serializers.CharField(source='product.title', read_only=True)
     class Meta:
         model = Order
         fields = ['product', 'price', 'quantity', 'total_price']
@@ -21,6 +22,7 @@ class UserOrderDetailSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     items = OrderDetailSerializer(source='orders', many=True, read_only=True)
     address = AddressSerializer(read_only=True, many=False)
+    status = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = UserOrder
@@ -97,8 +99,8 @@ class UserOrderSerializer(serializers.ModelSerializer):
             ip = get_client_ip(self.context.get('request'))
             Payment.objects.create(
                 user=user,
-                transaction_id=res['data']['authority'],
                 link=gateway.get_link(res['data']['authority']),
+                authority=res['data']['authority'],
                 order=user_order,
                 amount=total,
                 gateway=gateway,

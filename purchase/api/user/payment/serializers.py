@@ -1,14 +1,15 @@
 from rest_framework import serializers
 
 from core.models.payment import PaymentStatus
-from core.utills.get_client_ip import get_client_ip
-from purchase.gatway import ZarinGatWay
+from core.utils.get_client_ip import get_client_ip
 from core.models import Payment
 from core.models.order import OrderStatus, UserOrder
+from purchase.service.zarin_gateway import ZarinGatWay
 
 
 class PaymentSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    status = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Payment
@@ -36,11 +37,11 @@ class PaymentSerializer(serializers.ModelSerializer):
         res = gateway.request()
         if not res['success']:
             raise serializers.ValidationError(res['error'])
-        transaction_id = res['data']['authority']
-        link = gateway.get_link(transaction_id)
+        authority = res['data']['authority']
+        link = gateway.get_link(authority)
         payment = Payment.objects.create(
             **validated_data,
-            transaction_id=transaction_id,
+            authority=authority,
             amount=order.total_amount,
             gateway=gateway,
             ip_address=ip,

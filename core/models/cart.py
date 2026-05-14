@@ -13,3 +13,10 @@ class Cart(BaseModel):
     quantity = models.IntegerField()
     class Meta:
         db_table = 'cart'
+
+    @property
+    def total_price(self):
+        if self.product.sale_price:
+            return self.quantity * self.product.sale_price
+        else:
+            return self.quantity * self.product.price

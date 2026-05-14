@@ -19,7 +19,7 @@ class UserOrder(BaseModel):
         db_table = 'user_order'
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='orders')
-    status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.AWAITING_PAYMENT)
+    status = models.PositiveSmallIntegerField(choices=OrderStatus.choices, default=OrderStatus.AWAITING_PAYMENT)
     total_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
 
@@ -42,4 +42,5 @@ class Order(BaseModel):
     price = models.IntegerField(blank=True, null=True)
     quantity = models.IntegerField(blank=True, null=True)
     order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='orders')
+
 
