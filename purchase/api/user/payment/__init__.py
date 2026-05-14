@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -7,11 +8,13 @@ from rest_framework.viewsets import GenericViewSet
 
 from core.models.order import OrderStatus
 from core.models.payment import PaymentStatus
-from purchase.gatway import ZarinGatWay
 from core.models import Payment, UserOrder
 from purchase.api.user.payment.serializers import PaymentSerializer
+from purchase.service.zarin_gateway import ZarinGatWay
 
-
+@extend_schema(
+    tags=['payment'],
+)
 class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
     serializer_class = PaymentSerializer
     model = Payment
@@ -28,12 +31,13 @@ class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
             return Response({'error': 'Authority missing'}, status=400)
         if status == "OK" or 'OKback':
             try:
-                payment = Payment.objects.select_related('order').get(transaction_id=authority)
+                payment = Payment.objects.select_related('order').get(authority_id=authority)
                 gateway = ZarinGatWay(order=payment.order)
                 result = gateway.verify(authority=authority)
                 payment.order.status = OrderStatus.PENDING
                 payment.order.save(update_fields=['status'])
                 payment.status = PaymentStatus.PAID
+                payment.transaction_id = result['data']['ref_id']
                 payment.save(update_fields=['status'])
                 return Response({'result': result}, status=200)
             except Payment.DoesNotExist:

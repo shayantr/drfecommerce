@@ -1,10 +1,14 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from core.models import UserAddress
-from core.utills.permissions import AuthenticatedUserViewSet
-from user.api.user.serializers import AddressSerializer, AddressListSerializer
+from core.utils.permissions import AuthenticatedUserViewSet
+from core.utils.shared_serializers import AddressSerializer
+from user.api.user.serializers import AddressListSerializer
 
-
+@extend_schema(
+    tags=['address']
+)
 class DetailAddressViewSet(AuthenticatedUserViewSet, ModelViewSet):
     queryset = UserAddress.objects.all()
     serializer_class = AddressSerializer

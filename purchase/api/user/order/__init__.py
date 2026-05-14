@@ -1,9 +1,12 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, mixins
 from core.models import UserOrder
-from core.utills.permissions import AuthenticatedUserViewSet
+from core.utils.permissions import AuthenticatedUserViewSet
 from purchase.api.user.order.serializers import UserOrderSerializer, UserOrderDetailSerializer
 
-
+@extend_schema(
+    tags=['order'],
+)
 class UserOrderViewSet(AuthenticatedUserViewSet, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = UserOrder.objects.all()
     serializer_class = UserOrderSerializer
