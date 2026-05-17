@@ -1,9 +1,13 @@
+from unicodedata import category
+
 from django.core import validators
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from core.models import Product, ProductImage
+from core.models.category import Category
+from product.api.admin.category import CategorySerializer
 
 
 class ImageProductSerializer(serializers.ModelSerializer):
@@ -34,10 +38,11 @@ class AdminProductSerializer(serializers.ModelSerializer):
                                              ])
     price = serializers.IntegerField()
     sale_price = serializers.IntegerField(required=False, allow_null=True, default=None)
-
+    categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True, required=False, many=True)
+    categories_detail = CategorySerializer(many=True, source="categories", read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail"]
+        fields = ['id', 'user', 'title', 'slug', 'description', 'price', 'sale_price', 'sku', "images", "images_detail", 'categories', 'categories_detail']
         extra_kwargs = {'id': {'read_only': True}}
 
     def validate_sale_price(self, sale_price):
@@ -47,13 +52,17 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
     def validate_price(self, price):
         if price < 0 and price is not None:
-            price = None
+            raise ValidationError(detail='price must be positive', code='invalid')
         return price
+
 
     def create(self, validated_data):
         img = validated_data.pop('images', None)
+        categories = validated_data.pop('categories', None)
         product = Product.objects.create(**validated_data)
         if img:
             product.images.add(img)
+        if categories:
+            product.categories.add(*categories)
         product.save()
         return product

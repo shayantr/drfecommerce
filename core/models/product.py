@@ -29,7 +29,7 @@ class Product(BaseModel):
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     sku = models.CharField(max_length=256)
-    category = models.ManyToManyField(Category, related_name='products', blank=True)
+    categories = models.ManyToManyField(Category, related_name='products', blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
