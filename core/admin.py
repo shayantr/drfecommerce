@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 
 from core.models import User, ProductImage, Product, Order, UserOrder, Payment, UserAddress, UserCart, Cart
+from core.models.category import Category
 
 
 # Register your models here.
@@ -14,17 +15,18 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('phone', 'email', 'password')}),
         (
             _('Permissions'),
-            {'fields': ('is_staff', 'is_active','role' ,'is_superuser', 'groups', 'user_permissions')}),
+            {'fields': ('is_staff', 'is_active', 'role', 'is_superuser', 'groups', 'user_permissions')}),
 
-    (
-        _('Important dates'), {'fields': ('last_login', 'date_joined')}
-    )
+        (
+            _('Important dates'), {'fields': ('last_login', 'date_joined')}
+        )
     )
     readonly_fields = ('last_login', 'date_joined')
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('phone', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')
+            'fields': ('phone', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser', 'groups',
+                       'user_permissions')
         }),
     )
     form = UserChangeForm
@@ -40,4 +42,4 @@ admin.site.register(UserOrder)
 admin.site.register(Payment)
 admin.site.register(UserCart)
 admin.site.register(Cart)
-
+admin.site.register(Category)
