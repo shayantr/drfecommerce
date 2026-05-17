@@ -1,0 +1,25 @@
+from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAdminUser
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from core.models import Product
+from core.utils.permissions import AdminAuthentication
+from product.api.admin.product.serializers import AdminProductSerializer, ImageProductSerializer
+
+
+class ProductApiViewSet(AdminAuthentication, ModelViewSet):
+    serializer_class = AdminProductSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'slug'
+
+
+class CreateImageApiView(generics.CreateAPIView):
+    serializer_class = ImageProductSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
