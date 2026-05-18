@@ -17,7 +17,6 @@ import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 env = environ.Env(
     DEBUG=(bool, False)
 )
@@ -51,7 +50,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'storages',
     'django_celery_results',
-    #custom apps
+    'django_filters',
+    # custom apps
     'core',
     'purchase',
 ]
@@ -68,10 +68,10 @@ MIDDLEWARE = [
 
 CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 CELERY_TASK_TRACK_STARTED = env('CELERY_TASK_TRACK_STARTED')
-CELERY_TASK_TIME_LIMIT=30 * 60
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
-CELERY_ACCEPT_CONTENT=['json']
-CELERY_TASK_SERIALIZER='json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')
 CELERY_CACHE_BACKEND = env('CELERY_CACHE_BACKEND')
@@ -153,7 +153,9 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "COMPONENT_SPLIT_REQUEST": True
+    "COMPONENT_SPLIT_REQUEST": True,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+
 }
 
 SIMPLE_JWT = {
@@ -186,7 +188,7 @@ STORAGES = {
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-AWS_DIR="files/"
+AWS_DIR = "files/"
 AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
 AWS_S3_VERIFY = True
@@ -199,7 +201,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/"
 # STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/static/"
 
-#carinpal gateway
+# Zarinpal gateway
 MERCHANT_ID = env('MERCHANT_ID')
 PAYMENT_URL = env('PAYMENT_URL')
 VERIFY_URL = env('VERIFY_URL')
