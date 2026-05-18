@@ -8,6 +8,7 @@ from product.api.admin.category.serializers import CategorySerializer
 class CategoryApiViewSet(AdminAuthentication,viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
+    lookup_field = 'slug'
     def get_queryset(self):
         return self.queryset.filter(is_active=True)
+
