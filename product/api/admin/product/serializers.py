@@ -32,10 +32,13 @@ class AdminProductSerializer(serializers.ModelSerializer):
                                   validators=[validators.MinLengthValidator(1, "at least 1 character required!"),
                                               validators.MaxLengthValidator(100, "maximum 100 character or less!"),
                                               ])
-    slug = serializers.CharField(trim_whitespace=True,
-                                 validators=[UniqueValidator(queryset=Product.objects.all(),
-                                                             message="slug name must be unique"),
-                                             ])
+    slug = serializers.CharField(
+        allow_null=True,
+        required=False,
+        trim_whitespace=True,
+        validators=[UniqueValidator(queryset=Product.objects.all(),
+            message="slug name must be unique"),
+            ])
     price = serializers.IntegerField()
     sale_price = serializers.IntegerField(required=False, allow_null=True, default=None)
     categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True, required=False, many=True)

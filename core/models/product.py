@@ -28,8 +28,13 @@ class Product(BaseModel):
     stock_availability = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
-    sku = models.CharField(max_length=256)
-    categories = models.ManyToManyField(Category, related_name='products', blank=True)
+    sku = models.CharField(max_length=256, blank=True, null=True)
+    categories = models.ManyToManyField(
+        Category,
+        through='CategoryProduct',
+        related_name='products',
+        blank=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
