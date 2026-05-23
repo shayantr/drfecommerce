@@ -10,7 +10,7 @@ from core.models.category import Category
 # Register your models here.
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
-    list_display = ['phone', 'email', 'password', 'name', 'last_name', 'is_staff', 'is_active']
+    list_display = ['phone', 'email', 'password', 'first_name', 'last_name', 'is_staff', 'is_active']
     fieldsets = (
         (None, {'fields': ('phone', 'email', 'password')}),
         (
