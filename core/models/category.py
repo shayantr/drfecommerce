@@ -42,5 +42,6 @@ class CategoryProduct(models.Model):
 
     class Meta:
         unique_together = ('product_id', 'category_id')
+        db_table = 'category_product'
 
 

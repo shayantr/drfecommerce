@@ -18,10 +18,11 @@ class UserOrder(BaseModel):
     class Meta:
         db_table = 'user_order'
 
-    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_orders')
     status = models.PositiveSmallIntegerField(choices=OrderStatus.choices, default=OrderStatus.AWAITING_PAYMENT)
     total_amount = models.IntegerField(blank=True, null=True)
-    address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='orders')
+    address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='user_orders')
+    discount = models.ForeignKey('Discount', on_delete=models.CASCADE, related_name='user_orders', blank=True, null=True)
 
 @receiver(post_save, sender=UserOrder)
 def create_order_task(sender, instance, created, **kwargs):
