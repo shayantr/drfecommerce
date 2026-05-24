@@ -13,7 +13,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ['id', 'user', 'order', 'amount', 'status', 'ip_address', 'transaction_id', 'gateway', 'link']
+        fields = ['id', 'user', 'user_order', 'amount', 'status', 'ip_address', 'transaction_id', 'gateway', 'link']
         read_only_fields = ['id', 'user', 'amount', 'status', 'gateway', 'transaction_id', 'gateway', 'ip_address',
                             'link']
 
@@ -23,8 +23,8 @@ class PaymentSerializer(serializers.ModelSerializer):
         return order
 
     def create(self, validated_data):
-        order = UserOrder.objects.select_for_update().get(id=validated_data['order'].id)
-        payment = Payment.objects.filter(order=order)
+        user_order = UserOrder.objects.select_for_update().get(id=validated_data['user_order'].id)
+        payment = Payment.objects.filter(user_order=user_order)
         pending_payment = payment.filter(
             status=PaymentStatus.PENDING
         ).first()
@@ -32,7 +32,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             return pending_payment
         if payment.filter(status=PaymentStatus.PAID).exists():
             raise serializers.ValidationError('payment is already paid')
-        gateway = ZarinGatWay(order=order)
+        gateway = ZarinGatWay(user_order=user_order)
         ip = get_client_ip(self.context.get('request'))
         res = gateway.request()
         if not res['success']:
@@ -42,7 +42,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         payment = Payment.objects.create(
             **validated_data,
             authority=authority,
-            amount=order.total_amount,
+            amount=user_order.total_amount,
             gateway=gateway,
             ip_address=ip,
             link=link

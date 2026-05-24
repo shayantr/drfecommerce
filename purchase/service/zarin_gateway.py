@@ -14,18 +14,18 @@ class ZarinGatWay:
     def _call_back_url(self, reverse_url):
         return f"{CALL_BACK_URL}{reverse_url}"
 
-    def __init__(self, order):
-        self.order = order
+    def __init__(self, user_order):
+        self.user_order = user_order
 
     def request(self):
         payload = {
             'merchant_id': MERCHANT_ID,
-            'amount': self.order.total_amount,
+            'amount': self.user_order.total_amount,
             'callback_url': self._call_back_url(reverse('purchase:payment-call-back')),
             "description": "Transaction description.",
             'metadata': {
-                'order_id': str(self.order.id),
-                'mobile': str(self.order.user.phone),
+                'order_id': str(self.user_order.id),
+                'mobile': str(self.user_order.user.phone),
             }
 
         }
@@ -61,7 +61,7 @@ class ZarinGatWay:
     def verify(self, authority):
         payload = {
             "merchant_id": MERCHANT_ID,
-            "amount": self.order.total_amount,
+            "amount": self.user_order.total_amount,
             "authority": authority,
         }
         try:

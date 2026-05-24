@@ -8,7 +8,7 @@ class UserCart(BaseModel):
         db_table = 'user_cart'
 
 class Cart(BaseModel):
-    cart = models.ForeignKey('UserCart', on_delete=models.CASCADE, related_name='items')
+    user_cart = models.ForeignKey('UserCart', on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='items')
     quantity = models.IntegerField()
     class Meta:

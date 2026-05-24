@@ -16,14 +16,14 @@ Payment = apps.get_model('core', 'Payment')
 def check_order_status(self, order_id):
     from core.models.payment import PaymentStatus
     user_order = UserOrder.objects.get(id=order_id)
-    payment = Payment.objects.filter(order=user_order, status=PaymentStatus.PAID)
+    payment = Payment.objects.filter(user_order=user_order, status=PaymentStatus.PAID)
     if payment.exists():
         user_order.status = OrderStatus.PENDING
         user_order.save(update_fields=['status'])
     else:
         user_order.status = OrderStatus.CANCELLED
         user_order.save()
-        items = Order.objects.filter(order=user_order)
+        items = Order.objects.filter(user_order=user_order)
         for item in items:
             restore_product_reservation(item)
 
@@ -32,16 +32,16 @@ def check_order_status(self, order_id):
 def verify_payment(self, payment_id):
     from core.models.payment import PaymentStatus
     try:
-        payment = Payment.objects.select_related('order').get(id=payment_id)
+        payment = Payment.objects.select_related('user_order').get(id=payment_id)
         if payment.status != PaymentStatus.PENDING:
             return None
-        gateway = ZarinGatWay(order=payment.order)
+        gateway = ZarinGatWay(order=payment.user_order)
         result = gateway.verify(authority=payment.transaction_id)
         if result['success']:
             payment.status = PaymentStatus.PAID
             payment.save(update_fields=['status'])
-            payment.order.status = OrderStatus.PENDING
-            payment.order.save(update_fields=['status'])
+            payment.user_order.status = OrderStatus.PENDING
+            payment.user_order.save(update_fields=['status'])
             return None
         payment.status = PaymentStatus.FAILED
         payment.save(update_fields=['status'])

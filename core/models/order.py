@@ -21,6 +21,7 @@ class UserOrder(BaseModel):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_orders')
     status = models.PositiveSmallIntegerField(choices=OrderStatus.choices, default=OrderStatus.AWAITING_PAYMENT)
     total_amount = models.IntegerField(blank=True, null=True)
+    final_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='user_orders')
     discount = models.ForeignKey('Discount', on_delete=models.CASCADE, related_name='user_orders', blank=True, null=True)
 
@@ -34,6 +35,12 @@ def create_order_task(sender, instance, created, **kwargs):
             countdown=60 * 60
         ))
 
+def apply_discount(self, discount):
+    if discount.is_valid(self.total_amount):
+        discount_amount = discount.calculate_discount(self.total_sale)
+        self.final_amount = self.total_amount - discount_amount
+        self.discount = discount_amount
+        self.save()
 
 class Order(BaseModel):
     class Meta:
@@ -42,6 +49,6 @@ class Order(BaseModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='order_items')
     price = models.IntegerField(blank=True, null=True)
     quantity = models.IntegerField(blank=True, null=True)
-    order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='orders')
+    user_order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='orders')
 
 

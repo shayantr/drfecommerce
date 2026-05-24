@@ -61,7 +61,7 @@ class PrivateInvoiceApi(TestCase):
         self.product = create_product(user=self.user)
         self.address = createAddress(user=self.user)
         self.user_cart = UserCart.objects.create(user=self.user)
-        self.cart = Cart.objects.create(cart=self.user_cart, product=self.product, quantity=2)
+        self.cart = Cart.objects.create(user_cart=self.user_cart, product=self.product, quantity=2)
     def test_add_to_invoice(self):
         payload = {
             'address': self.address.id,
@@ -74,7 +74,7 @@ class PrivateInvoiceApi(TestCase):
     def test_get_invoice(self):
         user_order = UserOrder.objects.create(user=self.user, address=self.address)
         order = Order.objects.create(
-            order=user_order,
+            user_order=user_order,
             product=self.product,
             price=self.product.price,
             quantity=2
@@ -87,14 +87,14 @@ class PrivateInvoiceApi(TestCase):
     def test_celery_order_paid(self):
         user_order = UserOrder.objects.create(user=self.user, address=self.address)
         order = Order.objects.create(
-            order=user_order,
+            user_order=user_order,
             product=self.product,
             price=self.product.price,
             quantity=2
         )
         payment = Payment.objects.create(
             user=self.user,
-            order=user_order,
+            user_order=user_order,
             amount=1,
             status=2,
             ip_address='1.1.1.1',

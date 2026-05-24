@@ -14,7 +14,7 @@ class Payment(BaseModel):
     class Meta:
         db_table = 'payment'
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='payments')
-    order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='payments')
+    user_order = models.ForeignKey('UserOrder', on_delete=models.CASCADE, related_name='payments')
     amount = models.IntegerField()
     status = models.PositiveSmallIntegerField(choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

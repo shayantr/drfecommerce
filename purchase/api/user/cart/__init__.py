@@ -27,4 +27,4 @@ class AddToCartViewSet(AuthenticatedUserViewSet, ModelViewSet):
     def get_queryset(self):
         if self.action == 'list':
             return UserCart.objects.prefetch_related('items', 'items__product').filter(user=self.request.user)
-        return Cart.objects.select_related('product', 'cart__user').filter(cart__user=self.request.user)
+        return Cart.objects.select_related('product', 'user_cart__user').filter(user_cart__user=self.request.user)

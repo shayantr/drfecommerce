@@ -31,11 +31,11 @@ class PaymentModelViewSet(GenericViewSet, mixins.CreateModelMixin):
             return Response({'error': 'Authority missing'}, status=400)
         if status == "OK" or 'OKback':
             try:
-                payment = Payment.objects.select_related('order').get(authority_id=authority)
-                gateway = ZarinGatWay(order=payment.order)
+                payment = Payment.objects.select_related('user_order').get(authority_id=authority)
+                gateway = ZarinGatWay(user_order=payment.user_order)
                 result = gateway.verify(authority=authority)
-                payment.order.status = OrderStatus.PENDING
-                payment.order.save(update_fields=['status'])
+                payment.user_order.status = OrderStatus.PENDING
+                payment.user_order.save(update_fields=['status'])
                 payment.status = PaymentStatus.PAID
                 payment.transaction_id = result['data']['ref_id']
                 payment.save(update_fields=['status'])

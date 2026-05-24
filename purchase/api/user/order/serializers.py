@@ -46,12 +46,12 @@ class UserOrderSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = attrs.get('user')
-        cart = UserCart.objects.filter(user=user)
-        if not cart.exists():
+        user_cart = UserCart.objects.filter(user=user)
+        if not user_cart.exists():
             raise serializers.ValidationError('cart is empty')
         else:
-            cart = cart.first()
-        items = Cart.objects.filter(cart=cart)
+            user_cart = user_cart.first()
+        items = Cart.objects.filter(user_cart=user_cart)
         for item in items:
             if item.product.quantity < item.quantity:
                 raise serializers.ValidationError('quantity is less than product quantity')
@@ -59,16 +59,16 @@ class UserOrderSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('product is not active or available')
         return attrs
 
-    def _add_to_order(self, order):
+    def _add_to_order(self, user_order):
         user = self.context['request'].user
-        cart = UserCart.objects.get(user=user)
-        items = Cart.objects.filter(cart=cart)
+        user_cart = UserCart.objects.get(user=user)
+        items = Cart.objects.filter(user_cart=user_cart)
         total = 0
         for item in items:
             self._buy_product(item.product, item.quantity)
             if item.product.sale_price:
                 Order.objects.create(
-                    order=order,
+                    user_order=user_order,
                     product=item.product,
                     quantity=item.quantity,
                     price=item.product.sale_price
@@ -76,13 +76,13 @@ class UserOrderSerializer(serializers.ModelSerializer):
                 total += item.product.sale_price * item.quantity
             else:
                 Order.objects.create(
-                    order=order,
+                    user_order=user_order,
                     product=item.product,
                     quantity=item.quantity,
                     price=item.product.price
                 )
                 total += item.product.price * item.quantity
-        cart.delete()
+        user_cart.delete()
         return total
 
     def create(self, validated_data):
@@ -101,7 +101,7 @@ class UserOrderSerializer(serializers.ModelSerializer):
                 user=user,
                 link=gateway.get_link(res['data']['authority']),
                 authority=res['data']['authority'],
-                order=user_order,
+                user_order=user_order,
                 amount=total,
                 gateway=gateway,
                 status=1,

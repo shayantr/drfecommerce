@@ -7,11 +7,11 @@ from core.models import Cart, UserCart
 
 
 class AddToCartSerializer(serializers.ModelSerializer):
-    cart = serializers.CharField(read_only=True)
+    user_cart = serializers.CharField(read_only=True)
     total_price = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Cart
-        fields = ["id", "cart", "product", "quantity", "total_price"]
+        fields = ["id", "user_cart", "product", "quantity", "total_price"]
         extra_kwargs = {"id": {"read_only": True}}
 
     @extend_schema_field(OpenApiTypes.INT)
@@ -42,8 +42,8 @@ class AddToCartSerializer(serializers.ModelSerializer):
         product = validated_data.get('product')
         quantity = validated_data.get('quantity')
         with transaction.atomic():
-            if Cart.objects.filter(cart=user_cart[0], product=product).exists():
-                item = Cart.objects.select_for_update().get(cart=user_cart[0], product=product)
+            if Cart.objects.filter(user_cart=user_cart[0], product=product).exists():
+                item = Cart.objects.select_for_update().get(user_cart=user_cart[0], product=product)
                 quantity = quantity + item.quantity
                 if quantity > product.quantity:
                     raise serializers.ValidationError("Quantity must be less than product quantity")
@@ -51,7 +51,7 @@ class AddToCartSerializer(serializers.ModelSerializer):
                     item.quantity = quantity
                     item.save()
             else:
-               item = Cart.objects.create(cart=user_cart[0], product=product, quantity=quantity)
+               item = Cart.objects.create(user_cart=user_cart[0], product=product, quantity=quantity)
         return item
 
 

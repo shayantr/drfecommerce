@@ -63,7 +63,7 @@ class PrivateCartTest(TestCase):
     def test_update_cart(self):
         product = create_product(user=self.user)
         user_cart = create_user_cart(self.user)
-        cart = Cart.objects.create(cart=user_cart, product=product, quantity=2)
+        cart = Cart.objects.create(user_cart=user_cart, product=product, quantity=2)
         payload = {
             'quantity': 1,
         }
@@ -74,7 +74,7 @@ class PrivateCartTest(TestCase):
     def test_delete_cart(self):
         product = create_product(user=self.user)
         user_cart = create_user_cart(self.user)
-        cart = Cart.objects.create(cart=user_cart, product=product, quantity=2)
+        cart = Cart.objects.create(user_cart=user_cart, product=product, quantity=2)
         url = cart_detail_url(cart.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
@@ -86,7 +86,7 @@ class PrivateCartTest(TestCase):
         payload = {
             'product': product.id,
             'quantity': 0,
-            'cart': user_cart.id,
+            'user_cart': user_cart.id,
         }
         res = self.client.post(CART_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
@@ -98,7 +98,7 @@ class PrivateCartTest(TestCase):
         payload = {
             'product': product.id,
             'quantity': 6,
-            'cart': user_cart.id,
+            'user_cart': user_cart.id,
         }
         res = self.client.post(CART_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
