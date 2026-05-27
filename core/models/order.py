@@ -21,6 +21,7 @@ class UserOrder(BaseModel):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_orders')
     status = models.PositiveSmallIntegerField(choices=OrderStatus.choices, default=OrderStatus.AWAITING_PAYMENT)
     total_amount = models.IntegerField(blank=True, null=True)
+    discount_amount = models.IntegerField(blank=True, null=True, default=0)
     final_amount = models.IntegerField(blank=True, null=True)
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='user_orders')
     discount = models.ForeignKey('Discount', on_delete=models.CASCADE, related_name='user_orders', blank=True, null=True)
