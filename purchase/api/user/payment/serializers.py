@@ -42,7 +42,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         payment = Payment.objects.create(
             **validated_data,
             authority=authority,
-            amount=user_order.total_amount,
+            amount=user_order.final_amount,
             gateway=gateway,
             ip_address=ip,
             link=link

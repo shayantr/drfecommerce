@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import User, ProductImage, Product, Order, UserOrder, Payment, UserAddress, UserCart, Cart, Discount
 from core.models.category import Category
+from core.models.discount import DiscountUsage
 
 
 # Register your models here.
@@ -44,3 +45,4 @@ admin.site.register(UserCart)
 admin.site.register(Cart)
 admin.site.register(Category)
 admin.site.register(Discount)
+admin.site.register(DiscountUsage)

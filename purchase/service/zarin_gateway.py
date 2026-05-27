@@ -20,7 +20,7 @@ class ZarinGatWay:
     def request(self):
         payload = {
             'merchant_id': MERCHANT_ID,
-            'amount': self.user_order.total_amount,
+            'amount': self.user_order.final_amount,
             'callback_url': self._call_back_url(reverse('purchase:payment-call-back')),
             "description": "Transaction description.",
             'metadata': {
@@ -61,7 +61,7 @@ class ZarinGatWay:
     def verify(self, authority):
         payload = {
             "merchant_id": MERCHANT_ID,
-            "amount": self.user_order.total_amount,
+            "amount": self.user_order.final_amount,
             "authority": authority,
         }
         try:

@@ -1,8 +1,11 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
+from core.models.discount import DiscountUsage
 from core.utils.get_client_ip import get_client_ip
-from core.models import Order, Cart, UserOrder, UserCart, Product, Payment
+from core.models import Order, Cart, UserOrder, UserCart, Product, Payment, Discount
+from purchase.service.product_services import DiscountService
 from purchase.service.zarin_gateway import ZarinGatWay
 from user.api.user import AddressSerializer
 
@@ -63,6 +66,7 @@ class UserOrderSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         user_cart = UserCart.objects.get(user=user)
         items = Cart.objects.filter(user_cart=user_cart)
+        discount = None
         total = 0
         for item in items:
             self._buy_product(item.product, item.quantity)
@@ -82,16 +86,34 @@ class UserOrderSerializer(serializers.ModelSerializer):
                     price=item.product.price
                 )
                 total += item.product.price * item.quantity
-        user_cart.delete()
-        return total
+        if user_cart.discount_code:
+            try:
+                discount = Discount.objects.get(code=user_cart.discount_code)
+            except Discount.DoesNotExist:
+                raise ValidationError('discount does not exist')
+            DiscountService.validate(
+                discount=discount,
+                total=total,
+            )
+
+        # user_cart.delete()
+        return total, discount
 
     def create(self, validated_data):
         with transaction.atomic():
             user_order = UserOrder.objects.create(**validated_data)
             user = user_order.user
-            total = self._add_to_order(user_order)
+            total, discount = self._add_to_order(user_order)
+            user_order.discount = discount
             user_order.total_amount = total
+            user_order.discount_amount = discount.calculate_discount(total)
+            user_order.final_amount = total - user_order.discount_amount
             user_order.save()
+            DiscountUsage.objects.create(
+                user=user,
+                discount=discount,
+                user_order=user_order,
+            )
             gateway = ZarinGatWay(user_order)
             res = gateway.request()
             if not res['success']:

@@ -21,7 +21,6 @@ class ApplyDiscountSerializer(serializers.Serializer):
         user_cart = UserCart.objects.get(user=user)
         total = user_cart.calculate_total()
         DiscountService.validate(
-            user=user,
             total=total,
             discount=discount,
         )

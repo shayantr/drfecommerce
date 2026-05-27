@@ -69,9 +69,9 @@ class Discount(BaseModel):
 class DiscountUsage(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     discount = models.ForeignKey(Discount, on_delete=models.CASCADE)
-    order = models.ForeignKey('Order', on_delete=models.CASCADE)
+    user_order = models.ForeignKey('UserOrder', on_delete=models.CASCADE)
     class Meta:
         db_table='discount_usage'
-        unique_together = ('user', 'discount', 'order')
+        unique_together = ('user', 'discount', 'user_order')
 
 

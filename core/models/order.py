@@ -26,22 +26,18 @@ class UserOrder(BaseModel):
     address = models.ForeignKey('UserAddress', on_delete=models.CASCADE, related_name='user_orders')
     discount = models.ForeignKey('Discount', on_delete=models.CASCADE, related_name='user_orders', blank=True, null=True)
 
+    def get_final_amount(self):
+        return self.total_amount - self.discount_amount
+
 @receiver(post_save, sender=UserOrder)
 def create_order_task(sender, instance, created, **kwargs):
     if created:
         from purchase.tasks import check_order_status
-
         transaction.on_commit(lambda: check_order_status.apply_async(
             args=[instance.id],
             countdown=60 * 60
         ))
 
-def apply_discount(self, discount):
-    if discount.is_valid(self.total_amount):
-        discount_amount = discount.calculate_discount(self.total_sale)
-        self.final_amount = self.total_amount - discount_amount
-        self.discount = discount_amount
-        self.save()
 
 class Order(BaseModel):
     class Meta:
