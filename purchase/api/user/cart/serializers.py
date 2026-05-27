@@ -1,9 +1,10 @@
 from django.db import transaction
-from django.db.models import Sum, F
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
 from rest_framework import serializers
-from core.models import Cart, UserCart
+from rest_framework.exceptions import ValidationError
+
+from core.models import Cart, UserCart, Discount
 
 
 class AddToCartSerializer(serializers.ModelSerializer):
@@ -84,14 +85,29 @@ class ListCartSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     cart_items = UpdateCartSerializer(source='items',many=True, read_only=True)
     final_price = serializers.SerializerMethodField(read_only=True)
+    total_price = serializers.SerializerMethodField(read_only=True)
+    discount_amount = serializers.SerializerMethodField(read_only=True)
+    discount_code = serializers.CharField(allow_blank=True, allow_null=True)
     class Meta:
         model = UserCart
-        fields = ['user', 'cart_items', 'final_price']
+        fields = ['user', 'cart_items', 'final_price', 'total_price',
+        'discount_amount', 'discount_code']
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_discount_amount(self, obj):
+        try:
+            discount = Discount.objects.get(code=obj.discount_code)
+            return discount.show_value_str()
+        except Discount.DoesNotExist:
+            return 0
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_total_price(self, obj):
+        return obj.calculate_total()
 
     @extend_schema_field(OpenApiTypes.INT)
     def get_final_price(self, obj):
-        return obj.items.aggregate(
-            total=Sum(F('quantity') * F('product__price'))
-        )['total']
+        return obj.final_price()
+
 
 
