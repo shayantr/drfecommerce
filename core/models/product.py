@@ -36,6 +36,12 @@ class Product(BaseModel):
         blank=True
     )
 
+    def get_price(self):
+        if self.sale_price:
+            return self.sale_price
+        else:
+            return self.price
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)
