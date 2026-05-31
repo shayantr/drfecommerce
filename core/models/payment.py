@@ -23,13 +23,6 @@ class Payment(BaseModel):
     gateway = models.CharField(max_length=255)
     link = models.CharField(max_length=255, blank=True, null=True)
 
-    # def save(self, *args, **kwargs):
-    #     super().save(*args, **kwargs)
-    #     from purchase.tasks import verify_payment
-    #     verify_payment.apply_async(
-    #         args=[self.id],
-    #         countdown= 60 * 15 # check after 15 minutes
-    #     )
 @receiver(post_save, sender=Payment)
 def create_payment_task(sender, instance, created, **kwargs):
     if created:
