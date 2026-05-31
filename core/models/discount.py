@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
 
 from core.models.base_model import BaseModel
+from core.utils.round_up import round_up_to_thousand
 
 User = get_user_model()
 
@@ -46,6 +47,21 @@ class Discount(BaseModel):
             return False, "invalid discount"
         return True, "valid"
 
+    def validate(self, total):
+        if not self.is_valid:
+            raise ValidationError("Invalid discount")
+        if self.min_order_amount & total < self.min_order_amount:
+            raise ValidationError('min order amount required')
+
+        usage_count = DiscountUsage.objects.filter(
+            discount=self,
+        ).count()
+        if self.usage_limit and usage_count >=self.usage_limit:
+            raise ValueError('usage limit reached')
+        return True
+
+
+
     def show_value_str(self):
         if self.discount_type == DiscountType.PERCENT:
             if self.max_discount:
@@ -58,13 +74,12 @@ class Discount(BaseModel):
     def calculate_discount(self, order_amount):
         if self.discount_type == DiscountType.PERCENT:
             discount = order_amount * (self.value / 100)
+            discount = round_up_to_thousand(discount)
             if self.max_discount:
                 discount = min(discount, self.max_discount)
         else:
             discount = self.value
         return discount
-
-
 
 class DiscountUsage(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
