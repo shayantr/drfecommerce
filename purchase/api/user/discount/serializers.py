@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DJValidationError
 
 from core.models import Discount, UserCart
-from purchase.service.product_services import DiscountService
 
 
 class ApplyDiscountSerializer(serializers.Serializer):
@@ -20,10 +20,12 @@ class ApplyDiscountSerializer(serializers.Serializer):
         user = self.context['request'].user
         user_cart = UserCart.objects.get(user=user)
         total = user_cart.calculate_total()
-        DiscountService.validate(
-            total=total,
-            discount=discount,
-        )
+        try:
+            discount.validate(
+                total=total,
+            )
+        except DJValidationError as e:
+            raise ValidationError(str(e))
         user_cart.discount_code = discount.code
         user_cart.save()
         return validated_data

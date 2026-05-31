@@ -2,7 +2,6 @@ from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
 from django.apps import apps
 
-from core.models.discount import DiscountUsage
 from core.models.order import OrderStatus
 from purchase.service.product_services import restore_product_reservation
 from purchase.service.zarin_gateway import ZarinGatWay
@@ -10,6 +9,7 @@ from purchase.service.zarin_gateway import ZarinGatWay
 UserOrder = apps.get_model('core', 'UserOrder')
 Order = apps.get_model('core', 'Order')
 Payment = apps.get_model('core', 'Payment')
+DiscountUsage = apps.get_model('core', 'DiscountUsage')
 
 
 
@@ -23,6 +23,7 @@ def check_order_status(self, order_id):
         user_order.save(update_fields=['status'])
     else:
         user_order.status = OrderStatus.CANCELLED
+        user_order.discount = None
         user_order.save()
         DiscountUsage.objects.get(user_order=user_order).delete()
         items = Order.objects.filter(user_order=user_order)
@@ -37,7 +38,7 @@ def verify_payment(self, payment_id):
         payment = Payment.objects.select_related('user_order').get(id=payment_id)
         if payment.status != PaymentStatus.PENDING:
             return None
-        gateway = ZarinGatWay(user_order=payment.user_order)
+        gateway = ZarinGatWay(user_order=payment.user_order, ip=payment.id)
         result = gateway.verify(authority=payment.transaction_id)
         if result['success']:
             payment.status = PaymentStatus.PAID

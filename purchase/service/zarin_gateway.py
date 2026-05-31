@@ -5,6 +5,8 @@ from rest_framework.exceptions import APIException
 
 from app import settings
 from app.settings import START_PAY_URL, CALL_BACK_URL, MERCHANT_ID, PAYMENT_URL, VERIFY_URL
+from core.models import Payment
+from core.utils.get_client_ip import get_client_ip
 
 
 class ZarinGatWay:
@@ -14,8 +16,9 @@ class ZarinGatWay:
     def _call_back_url(self, reverse_url):
         return f"{CALL_BACK_URL}{reverse_url}"
 
-    def __init__(self, user_order):
+    def __init__(self, user_order, ip):
         self.user_order = user_order
+        self.ip = ip
 
     def request(self):
         payload = {
@@ -42,9 +45,20 @@ class ZarinGatWay:
                 "success": False,
                 "error": result["errors"],
             }
+        payment = Payment.objects.create(
+            user=self.user_order.user,
+            link=self.get_link(result['data']['authority']),
+            authority=result['data']['authority'],
+            user_order=self.user_order,
+            amount=self.user_order.final_amount,
+            gateway=self,
+            status=1,
+            ip_address=self.ip,
+        )
         return {
             "success": True,
             "data": result['data'],
+            'payment': payment
         }
 
     def get_link(self, authority):
@@ -55,8 +69,6 @@ class ZarinGatWay:
                 "success": False,
                 "error": str(e),
             }
-
-
 
     def verify(self, authority):
         payload = {
@@ -88,7 +100,6 @@ class ZarinGatWay:
                 "success": False,
                 "error": result['errors'],
             }
-
 
     def __str__(self):
         return "ZarinGatWay"
