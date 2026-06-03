@@ -8,15 +8,16 @@ from core.models import Cart, UserCart
 from core.utils.permissions import AuthenticatedUserViewSet
 from purchase.api.user.cart.serializers import AddToCartSerializer, UpdateCartSerializer, ListCartSerializer
 from purchase.api.user.discount.serializers import ApplyDiscountSerializer
+from purchase.examples.cart_schema import CartSchemas
 
 
 @extend_schema(
     tags=['Cart'],
 )
 @extend_schema_view(
-    create=extend_schema(
-        description='Add Product ID and the quantity that client requested'),
-    list=extend_schema(description='return products name, quantities and total prices with final price'),
+    list=CartSchemas.list,
+    create=CartSchemas.create,
+    retrieve=CartSchemas.retrieve,
 )
 class AddToCartViewSet(AuthenticatedUserViewSet, ModelViewSet):
     queryset = Cart.objects.all()
@@ -45,4 +46,3 @@ class AddToCartViewSet(AuthenticatedUserViewSet, ModelViewSet):
         if self.action in ['list', 'apply_discount']:
             return UserCart.objects.prefetch_related('items', 'items__product').filter(user=self.request.user)
         return Cart.objects.select_related('product', 'user_cart__user').filter(user_cart__user=self.request.user)
-
