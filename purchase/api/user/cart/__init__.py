@@ -18,6 +18,10 @@ from purchase.examples.cart_schema import CartSchemas
     list=CartSchemas.list,
     create=CartSchemas.create,
     retrieve=CartSchemas.retrieve,
+    update=CartSchemas.patch,
+    partial_update=CartSchemas.patch,
+    destroy=CartSchemas.delete,
+    apply_discount=CartSchemas.apply_discount
 )
 class AddToCartViewSet(AuthenticatedUserViewSet, ModelViewSet):
     queryset = Cart.objects.all()

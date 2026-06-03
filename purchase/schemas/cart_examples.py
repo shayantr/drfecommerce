@@ -16,3 +16,15 @@ class CartExample:
             'id': 2
         }
     )
+    put = OpenApiExample(
+        "مثال ۱",
+        value={
+            'quantity': 2
+        }
+    )
+    apply_discount = OpenApiExample(
+        'مثال ۱',
+        value={
+            'discount_code': "string code"
+        }
+    )

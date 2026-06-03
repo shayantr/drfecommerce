@@ -18,3 +18,17 @@ class CartSchemas:
         summary='لیست سبد خرید',
         description='گرفتن لیست سبد خرید به همراه جمع مبالغ هر محصول و کل محصولات بدون نیاز به گرفتن آیدی سبد خرید',
     )
+    patch = extend_schema(
+        summary='آپدیت کردن تعداد محصول',
+        description="آپدیت کردن تعداد محصول با گرفتن آیدی آیتم در سبد خرید و تغییر تعداد محصول یا آیتم انتخابی",
+        examples=[CartExample.put]
+    )
+    delete = extend_schema(
+        summary='پاک کردن آیتم داخل سبد کارت',
+        description="با استفاده از آیدی یکتای آیتم در سبد خرید میتوانید محصول مورد نظر را پاک کنید"
+    )
+    apply_discount = extend_schema(
+        summary="اضافه کردن کد تخفیف به سبد",
+        description="اضافه کردن کد تخفیف با استفاده از متد پچ در سبد خرید",
+        examples=[CartExample.apply_discount]
+    )
